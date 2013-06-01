@@ -320,14 +320,14 @@
 0162 : BA 01            "  "            mov     r2,#001H
 0164                            L0164:
 0164 : 74 24            "t$"            call    select_col
-0166 : 46 FA            "F "            jnt1    key_pressed
+0166 : 46 FA            "F "            jnt1    key_not_pressed
 0168 : 89 10            "  "            orl     p1,#010H ; trigger reset
 016A : 99 EF            "  "            anl     p1,#0EFH
 016C : BC 45            " E"            mov     r4,#045H
 016E : BD 02            "  "            mov     r5,#002H
 0170 : 14 C2            "  "            call    proc_delay
 0172 : 74 24            "t$"            call    select_col ; try to read one more time
-0174 : 46 FA            "F "            jnt1    key_pressed
+0174 : 46 FA            "F "            jnt1    key_not_pressed
 0176 : 89 10            "  "            orl     p1,#010H ; trigger reset
 0178 : 99 EF            "  "            anl     p1,#0EFH
 017A : B8 2F            " /"            mov     r0,#02FH
@@ -427,7 +427,7 @@
 01F8                            L01F8:
 01F8 : 44 9B            "D "            jmp     L029B
                                 ;
-01FA                            key_pressed:
+01FA                            key_not_pressed:
 01FA : 89 10            "  "            orl     p1,#010H ; reset trigger
 01FC : 99 EF            "  "            anl     p1,#0EFH
 01FE : 54 CA            "T "            call    respond_to_command
@@ -1824,7 +1824,7 @@ Value           Type    Name
 01EF            Code    L01EF
 01F6            Code    L01F6
 01F8            Code    L01F8
-01FA            Code    key_pressed
+01FA            Code    key_not_pressed
 0212            Code    L0212
 0223            Code    L0223
 0231            Code    shift_released

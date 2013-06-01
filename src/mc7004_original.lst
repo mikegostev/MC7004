@@ -1,0 +1,1961 @@
+                                ;
+                                ;       Disassembled by:
+                                ;               DASMx object code disassembler
+                                ;               (c) Copyright 1996-2003   Conquest Consultants
+                                ;               Version 1.40 (Oct 18 2003)
+                                ;
+                                ;       File:           mc7004_original.rom
+                                ;
+                                ;       Size:           2048 bytes
+                                ;       Checksum:       95A0
+                                ;       CRC-32:         69FCAB53
+                                ;
+                                ;       Date:           Tue May 14 01:29:35 2013
+                                ;
+                                ;       CPU:            Intel 8048 (MCS-48 family)
+                                ;
+                                ;
+                                ;
+                                        org     00000H
+                                ;
+0000 : 15               " "             dis     i
+0001 : 24 33            "$3"            jmp     entry
+0003 : 84 00            "  "            jmp     ext_intr
+                                ;
+0005 : 00               " "             nop
+0006 : 00               " "             nop
+0007 : D5               " "             sel     rb1 ; timer interrupt
+0008 : 05               " "             en      i
+0009 : B8 3A            " :"            mov     r0,#03AH ; сохраняем аккумулятор для будущих поколений
+000B : A0               " "             mov     @r0,a
+000C : FA               " "             mov     a,r2 ; если мы в середине двухбайтной комманды
+000D : C6 17            "  "            jz      reset_timer_and_leave
+000F : EB 1B            "  "            djnz    r3,L001B
+0011 : BA 00            "  "            mov     r2,#000H
+0013 : BE B6            "  "            mov     r6,#0B6H ; не дождались второго байта, посылаем код ошибки
+0015 : 14 6C            " l"            call    send_r6
+0017                            reset_timer_and_leave:
+0017 : 65               "e"             stop    tcnt
+0018 : 23 00            "# "            mov     a,#000H
+001A : 62               "b"             mov     t,a
+001B                            L001B:
+001B : B8 3A            " :"            mov     r0,#03AH
+001D : F0               " "             mov     a,@r0
+001E : 93               " "             retr
+                                ;
+001F                            clear_all:
+001F : B9 20            "  "            mov     r1,#020H
+0021 : B8 20            "  "            mov     r0,#020H
+0023                            L0023:
+0023 : B0 00            "  "            mov     @r0,#000H
+0025 : 18               " "             inc     r0
+0026 : E9 23            " #"            djnz    r1,L0023
+0028 : B8 00            "  "            mov     r0,#000H
+002A : B9 00            "  "            mov     r1,#000H
+002C : BA 00            "  "            mov     r2,#000H
+002E : BB 00            "  "            mov     r3,#000H
+0030 : BC 00            "  "            mov     r4,#000H
+0032 : BD 00            "  "            mov     r5,#000H
+0034 : BE 00            "  "            mov     r6,#000H
+0036 : BF 00            "  "            mov     r7,#000H
+0038 : D5               " "             sel     rb1
+0039 : B8 00            "  "            mov     r0,#000H
+003B : B9 00            "  "            mov     r1,#000H
+003D : BA 00            "  "            mov     r2,#000H
+003F : BB 00            "  "            mov     r3,#000H
+0041 : BC 00            "  "            mov     r4,#000H
+0043 : BD 00            "  "            mov     r5,#000H
+0045 : BE 00            "  "            mov     r6,#000H
+0047 : BF 00            "  "            mov     r7,#000H
+0049 : C5               " "             sel     rb0
+004A : 93               " "             retr
+                                ;
+004B : 00               " "             nop
+004C : 00               " "             nop
+004D : 00               " "             nop
+004E : 00               " "             nop
+004F : 00               " "             nop
+0050 : 00               " "             nop
+0051 : 00               " "             nop
+0052 : 00               " "             nop
+0053 : 00               " "             nop
+0054 : 00               " "             nop
+0055 : 00               " "             nop
+0056 : 00               " "             nop
+0057 : 00               " "             nop
+0058 : 00               " "             nop
+0059 : 00               " "             nop
+005A : 00               " "             nop
+005B : 00               " "             nop
+005C : 00               " "             nop
+005D : 00               " "             nop
+005E : 00               " "             nop
+005F : 00               " "             nop
+0060 : 00               " "             nop
+0061 : 00               " "             nop
+0062 : 00               " "             nop
+0063 : 00               " "             nop
+0064 : 00               " "             nop
+0065 : 00               " "             nop
+0066 : 00               " "             nop
+0067 : 00               " "             nop
+0068                            send_030:
+0068 : B8 30            " 0"            mov     r0,#030H
+006A : F0               " "             mov     a,@r0
+006B : AE               " "             mov     r6,a
+006C                            send_r6:
+006C : B8 25            " %"            mov     r0,#025H
+006E : F0               " "             mov     a,@r0
+006F : 72 94            "r "            jb3     L0094
+0071 : B9 21            " !"            mov     r1,#021H
+0073 : F1               " "             mov     a,@r1
+0074 : 53 7F            "S "            anl     a,#07FH
+0076 : A1               " "             mov     @r1,a
+0077 : 39               "9"             outl    p1,a     ; start bit
+0078 : BF 08            "  "            mov     r7,#008H
+007A                            L007A:
+007A : BD 01            "  "            mov     r5,#001H
+007C : BC 15            "  "            mov     r4,#015H
+007E : 14 C2            "  "            call    proc_delay
+0080 : FE               " "             mov     a,r6
+0081 : 77               "w"             rr      a
+0082 : AE               " "             mov     r6,a
+0083 : 53 80            "S "            anl     a,#080H
+0085 : 61               "a"             add     a,@r1
+0086 : 39               "9"             outl    p1,a
+0087 : EF 7A            " z"            djnz    r7,L007A
+0089 : BD 01            "  "            mov     r5,#001H
+008B : BC 17            "  "            mov     r4,#017H
+008D : 14 C2            "  "            call    proc_delay
+008F : 23 80            "# "            mov     a,#080H
+0091 : 61               "a"             add     a,@r1
+0092 : 39               "9"             outl    p1,a
+0093 : A1               " "             mov     @r1,a
+0094                            L0094:
+0094 : 93               " "             retr
+                                ;
+0095                            trig_reset:
+0095 : 89 10            "  "            orl     p1,#010H
+0097 : 99 EF            "  "            anl     p1,#0EFH
+0099 : 93               " "             retr
+                                ;
+009A : 00               " "             nop
+009B : 00               " "             nop
+009C : 00               " "             nop
+009D : 00               " "             nop
+009E : 00               " "             nop
+009F : 00               " "             nop
+00A0 : 00               " "             nop
+00A1 : 00               " "             nop
+00A2 : 00               " "             nop
+00A3 : 00               " "             nop
+00A4 : 00               " "             nop
+00A5 : 00               " "             nop
+00A6 : 00               " "             nop
+00A7 : 00               " "             nop
+00A8 : 00               " "             nop
+00A9 : 00               " "             nop
+00AA : 00               " "             nop
+00AB : 00               " "             nop
+00AC : 00               " "             nop
+00AD : 00               " "             nop
+00AE : 00               " "             nop
+00AF : 00               " "             nop
+00B0 : 00               " "             nop
+00B1 : 00               " "             nop
+00B2 : 00               " "             nop
+00B3 : 00               " "             nop
+00B4 : 00               " "             nop
+00B5 : 00               " "             nop
+00B6 : 00               " "             nop
+00B7 : 00               " "             nop
+00B8 : 00               " "             nop
+00B9 : 00               " "             nop
+00BA : 00               " "             nop
+00BB : 00               " "             nop
+00BC : 00               " "             nop
+00BD : 00               " "             nop
+00BE : 00               " "             nop
+00BF : 00               " "             nop
+00C0 : 00               " "             nop
+00C1 : 00               " "             nop
+00C2                            proc_delay:
+00C2 : EC C2            "  "            djnz    r4,proc_delay
+00C4 : ED C2            "  "            djnz    r5,proc_delay
+00C6 : 93               " "             retr
+                                ;
+00C7                            clickif_022_b3:
+00C7 : B8 22            " ""            mov     r0,#022H
+00C9 : F0               " "             mov     a,@r0
+00CA : 72 CE            "r "            jb3     L00CE
+00CC : 04 DC            "  "            jmp     L00DC
+                                ;
+00CE                            L00CE:
+00CE : B9 21            " !"            mov     r1,#021H
+00D0 : 23 08            "# "            mov     a,#008H
+00D2 : 61               "a"             add     a,@r1
+00D3 : 39               "9"             outl    p1,a
+00D4 : BC 7F            "  "            mov     r4,#07FH
+00D6 : BD 01            "  "            mov     r5,#001H
+00D8 : 14 C2            "  "            call    proc_delay
+00DA : F1               " "             mov     a,@r1
+00DB : 39               "9"             outl    p1,a
+00DC                            L00DC:
+00DC : 93               " "             retr
+                                ;
+00DD                            beepif_022_b4:
+00DD : B8 22            " ""            mov     r0,#022H
+00DF : F0               " "             mov     a,@r0
+00E0 : 92 E4            "  "            jb4     proc_beep
+00E2 : 04 F5            "  "            jmp     L00F5
+                                ;
+00E4                            proc_beep:
+00E4 : BE FE            "  "            mov     r6,#0FEH
+00E6 : B9 21            " !"            mov     r1,#021H
+00E8                            L00E8:
+00E8 : F1               " "             mov     a,@r1
+00E9 : D3 08            "  "            xrl     a,#008H
+00EB : 39               "9"             outl    p1,a
+00EC : BC 1E            "  "            mov     r4,#01EH
+00EE : BD 01            "  "            mov     r5,#001H
+00F0 : 14 C2            "  "            call    proc_delay
+00F2 : A1               " "             mov     @r1,a
+00F3 : EE E8            "  "            djnz    r6,L00E8
+00F5                            L00F5:
+00F5 : 93               " "             retr
+                                ;
+00F6                            resetat_022:
+00F6 : B9 22            " ""            mov     r1,#022H
+00F8 : F1               " "             mov     a,@r1
+00F9 : 48               "H"             orl     a,r0
+00FA : D8               " "             xrl     a,r0
+00FB : A1               " "             mov     @r1,a
+00FC : 93               " "             retr
+                                ;
+00FD : 00               " "             nop
+00FE : 00               " "             nop
+00FF : 00               " "             nop
+0100 : 00               " "             nop
+0101 : 00               " "             nop
+0102 : 00               " "             nop
+0103 : 00               " "             nop
+0104 : 00               " "             nop
+0105 : 00               " "             nop
+0106 : 00               " "             nop
+0107 : 00               " "             nop
+0108 : 00               " "             nop
+0109 : 00               " "             nop
+010A : 00               " "             nop
+010B : 00               " "             nop
+010C : 00               " "             nop
+010D : 00               " "             nop
+010E : 00               " "             nop
+010F : 00               " "             nop
+0110 : 00               " "             nop
+0111 : 00               " "             nop
+0112 : 00               " "             nop
+0113 : 00               " "             nop
+0114 : 00               " "             nop
+0115                            read_byte_to_r7:
+0115 : BF 00            "  "            mov     r7,#000H
+0117 : FF               " "             mov     a,r7
+0118 : B9 08            "  "            mov     r1,#008H
+011A                            L011A:
+011A : BC 15            "  "            mov     r4,#015H
+011C : BD 01            "  "            mov     r5,#001H
+011E : 14 C2            "  "            call    proc_delay
+0120 : 86 2A            " *"            jni     L012A
+0122 : FF               " "             mov     a,r7
+0123 : 43 01            "C "            orl     a,#001H
+0125                            L0125:
+0125 : 77               "w"             rr      a
+0126 : AF               " "             mov     r7,a
+0127 : E9 1A            "  "            djnz    r1,L011A
+0129 : 93               " "             retr
+                                ;
+012A                            L012A:
+012A : 00               " "             nop
+012B : 24 25            "$%"            jmp     L0125
+                                ;
+012D                            setat_022:
+012D : B9 22            " ""            mov     r1,#022H
+012F : F1               " "             mov     a,@r1
+0130 : 48               "H"             orl     a,r0
+0131 : A1               " "             mov     @r1,a
+0132 : 93               " "             retr
+                                ;
+0133                            entry:
+0133 : C5               " "             sel     rb0
+0134 : 75               "u"             ent0    clk
+0135 : 25               "%"             en      tcnti
+0136 : 89 10            "  "            orl     p1,#010H ; trigger reset
+0138 : 99 EF            "  "            anl     p1,#0EFH ; 
+013A : 8A F0            "  "            orl     p2,#0F0H ; LEDS on
+013C : 89 20            "  "            orl     p1,#020H ; R/L on
+013E : 14 E4            "  "            call    proc_beep
+0140 : 14 E4            "  "            call    proc_beep
+0142 : 9A 0F            "  "            anl     p2,#00FH ; LEDS off
+0144 : 99 DF            "  "            anl     p1,#0DFH ; R/L off
+0146 : 14 1F            "  "            call    clear_all
+0148 : B9 22            " ""            mov     r1,#022H
+014A : B1 38            " 8"            mov     @r1,#038H
+014C : B8 21            " !"            mov     r0,#021H
+014E : B0 C0            "  "            mov     @r0,#0C0H ; output up
+0150                            L0150:
+0150 : 86 53            " S"            jni     L0153
+0152 : 05               " "             en      i
+0153                            L0153:
+0153 : BB 08            "  "            mov     r3,#008H
+0155                            L0155:
+0155 : B9 23            " #"            mov     r1,#023H
+0157 : B1 03            "  "            mov     @r1,#003H
+0159 : CB               " "             dec     r3
+015A : B8 21            " !"            mov     r0,#021H
+015C : F0               " "             mov     a,@r0
+015D : 53 F8            "S "            anl     a,#0F8H ; mask muliplexor lines
+015F : 6B               "k"             add     a,r3
+0160 : A0               " "             mov     @r0,a
+0161 : 39               "9"             outl    p1,a ; select row
+0162                            L0162:
+0162 : BA 01            "  "            mov     r2,#001H
+0164                            L0164:
+0164 : 74 24            "t$"            call    select_col
+0166 : 46 FA            "F "            jnt1    key_pressed
+0168 : 89 10            "  "            orl     p1,#010H ; trigger reset
+016A : 99 EF            "  "            anl     p1,#0EFH
+016C : BC 45            " E"            mov     r4,#045H
+016E : BD 02            "  "            mov     r5,#002H
+0170 : 14 C2            "  "            call    proc_delay
+0172 : 74 24            "t$"            call    select_col ; try to read one more time
+0174 : 46 FA            "F "            jnt1    key_pressed
+0176 : 89 10            "  "            orl     p1,#010H ; trigger reset
+0178 : 99 EF            "  "            anl     p1,#0EFH
+017A : B8 2F            " /"            mov     r0,#02FH
+017C : F0               " "             mov     a,@r0
+017D : D3 03            "  "            xrl     a,#003H
+017F : C6 EF            "  "            jz      L01EF
+0181 : 00               " "             nop
+0182 : 00               " "             nop
+0183 : 00               " "             nop
+0184 : 00               " "             nop
+0185 : 00               " "             nop
+0186 : FF               " "             mov     a,r7
+0187 : E3               " "             movp3   a,@a
+0188 : AE               " "             mov     r6,a ;scan code?
+0189 : B8 30            " 0"            mov     r0,#030H
+018B : A0               " "             mov     @r0,a
+018C : FE               " "             mov     a,r6
+018D : C6 E2            "  "            jz      L01E2
+018F : D3 AF            "  "            xrl     a,#0AFH
+0191 : C6 CD            "  "            jz      L01CD
+0193 : FE               " "             mov     a,r6
+0194 : D3 AE            "  "            xrl     a,#0AEH
+0196 : C6 D5            "  "            jz      L01D5
+0198 : B9 28            " ("            mov     r1,#028H
+019A : FE               " "             mov     a,r6
+019B : D1               " "             xrl     a,@r1
+019C : C6 EF            "  "            jz      L01EF
+019E : B9 29            " )"            mov     r1,#029H
+01A0 : FE               " "             mov     a,r6
+01A1 : D1               " "             xrl     a,@r1
+01A2 : C6 F6            "  "            jz      L01F6
+01A4 : B9 2A            " *"            mov     r1,#02AH
+01A6 : FE               " "             mov     a,r6
+01A7 : D1               " "             xrl     a,@r1
+01A8 : C6 F6            "  "            jz      L01F6
+01AA : B8 27            " '"            mov     r0,#027H
+01AC : B0 0B            "  "            mov     @r0,#00BH
+01AE : B9 29            " )"            mov     r1,#029H
+01B0 : B8 2A            " *"            mov     r0,#02AH
+01B2 : F1               " "             mov     a,@r1
+01B3 : A0               " "             mov     @r0,a
+01B4 : B8 28            " ("            mov     r0,#028H
+01B6 : F0               " "             mov     a,@r0
+01B7 : A1               " "             mov     @r1,a
+01B8 : FE               " "             mov     a,r6
+01B9 : A0               " "             mov     @r0,a
+01BA : B9 2C            " ,"            mov     r1,#02CH
+01BC : B8 2D            " -"            mov     r0,#02DH
+01BE : F1               " "             mov     a,@r1
+01BF : A0               " "             mov     @r0,a
+01C0 : B8 2B            " +"            mov     r0,#02BH
+01C2 : F0               " "             mov     a,@r0
+01C3 : A1               " "             mov     @r1,a
+01C4 : FF               " "             mov     a,r7
+01C5 : A0               " "             mov     @r0,a
+01C6 : B8 2F            " /"            mov     r0,#02FH
+01C8 : 10               " "             inc     @r0
+01C9 : 14 68            " h"            call    send_030
+01CB : 44 82            "D "            jmp     L0282
+                                ;
+01CD                            L01CD:
+01CD : B8 36            " 6"            mov     r0,#036H
+01CF : F0               " "             mov     a,@r0
+01D0 : 12 F6            "  "            jb0     L01F6
+01D2 : 10               " "             inc     @r0
+01D3 : 24 DE            "$ "            jmp     L01DE
+                                ;
+01D5                            L01D5:
+01D5 : B8 36            " 6"            mov     r0,#036H
+01D7 : F0               " "             mov     a,@r0
+01D8 : 52 F6            "R "            jb2     L01F6
+01DA : F0               " "             mov     a,@r0
+01DB : 03 04            "  "            add     a,#004H
+01DD : A0               " "             mov     @r0,a
+01DE                            L01DE:
+01DE : 14 68            " h"            call    send_030
+01E0 : 44 82            "D "            jmp     L0282
+                                ;
+01E2                            L01E2:
+01E2 : B8 36            " 6"            mov     r0,#036H
+01E4 : F0               " "             mov     a,@r0
+01E5 : 32 F6            "2 "            jb1     L01F6
+01E7 : 10               " "             inc     @r0
+01E8 : 10               " "             inc     @r0
+01E9 : BE AE            "  "            mov     r6,#0AEH
+01EB : 14 6C            " l"            call    send_r6
+01ED : 44 82            "D "            jmp     L0282
+                                ;
+01EF                            L01EF:
+01EF : B8 27            " '"            mov     r0,#027H
+01F1 : F0               " "             mov     a,@r0
+01F2 : 07               " "             dec     a
+01F3 : C6 F8            "  "            jz      L01F8
+01F5 : A0               " "             mov     @r0,a
+01F6                            L01F6:
+01F6 : 44 82            "D "            jmp     L0282
+01F8                            L01F8:
+01F8 : 44 9B            "D "            jmp     L029B
+                                ;
+01FA                            key_pressed:
+01FA : 89 10            "  "            orl     p1,#010H ; reset trigger
+01FC : 99 EF            "  "            anl     p1,#0EFH
+01FE : 54 CA            "T "            call    respond_to_command
+0200 : B8 36            " 6"            mov     r0,#036H
+0202 : F0               " "             mov     a,@r0
+0203 : C6 37            " 7"            jz      L0237
+0205 : 67               "g"             rrc     a
+0206 : E6 12            "  "            jnc     L0212
+0208 : FF               " "             mov     a,r7
+0209 : D3 CF            "  "            xrl     a,#0CFH
+020B : 96 12            "  "            jnz     L0212
+020D : F0               " "             mov     a,@r0
+020E : 07               " "             dec     a
+020F : A0               " "             mov     @r0,a
+0210 : 44 31            "D1"            jmp     shift_released
+                                ;
+0212                            L0212:
+0212 : F0               " "             mov     a,@r0
+0213 : 67               "g"             rrc     a
+0214 : 67               "g"             rrc     a
+0215 : 67               "g"             rrc     a
+0216 : E6 23            " #"            jnc     L0223
+0218 : FF               " "             mov     a,r7
+0219 : D3 CC            "  "            xrl     a,#0CCH
+021B : 96 23            " #"            jnz     L0223
+021D : F0               " "             mov     a,@r0
+021E : D3 04            "  "            xrl     a,#004H
+0220 : A0               " "             mov     @r0,a
+0221 : 44 31            "D1"            jmp     shift_released
+                                ;
+0223                            L0223:
+0223 : F0               " "             mov     a,@r0
+0224 : 67               "g"             rrc     a
+0225 : 67               "g"             rrc     a
+0226 : E6 37            " 7"            jnc     L0237
+0228 : FF               " "             mov     a,r7
+0229 : D3 9E            "  "            xrl     a,#09EH
+022B : 96 37            " 7"            jnz     L0237
+022D : F0               " "             mov     a,@r0
+022E : D3 02            "  "            xrl     a,#002H
+0230 : A0               " "             mov     @r0,a
+0231                            shift_released:
+0231 : BE B3            "  "            mov     r6,#0B3H
+0233 : 14 6C            " l"            call    send_r6
+0235 : 44 82            "D "            jmp     L0282
+                                ;
+0237                            L0237:
+0237 : B8 2F            " /"            mov     r0,#02FH
+0239 : F0               " "             mov     a,@r0
+023A : C6 82            "  "            jz      L0282
+023C : B8 2B            " +"            mov     r0,#02BH
+023E : F0               " "             mov     a,@r0
+023F : DF               " "             xrl     a,r7
+0240 : 96 5B            " ["            jnz     L025B
+0242 : B9 2C            " ,"            mov     r1,#02CH
+0244 : F1               " "             mov     a,@r1
+0245 : A0               " "             mov     @r0,a
+0246 : B8 2D            " -"            mov     r0,#02DH
+0248 : F0               " "             mov     a,@r0
+0249 : A1               " "             mov     @r1,a
+024A : B0 00            "  "            mov     @r0,#000H
+024C : B8 29            " )"            mov     r0,#029H
+024E : B9 28            " ("            mov     r1,#028H
+0250 : F0               " "             mov     a,@r0
+0251 : A1               " "             mov     @r1,a
+0252 : B9 2A            " *"            mov     r1,#02AH
+0254 : F1               " "             mov     a,@r1
+0255 : A0               " "             mov     @r0,a
+0256 : B1 00            "  "            mov     @r1,#000H
+0258 : 44 7D            "D}"            jmp     L027D
+                                ;
+025A : 00               " "             nop
+025B                            L025B:
+025B : B8 2C            " ,"            mov     r0,#02CH
+025D : F0               " "             mov     a,@r0
+025E : DF               " "             xrl     a,r7
+025F : 96 71            " q"            jnz     L0271
+0261 : B9 2D            " -"            mov     r1,#02DH
+0263 : F1               " "             mov     a,@r1
+0264 : A0               " "             mov     @r0,a
+0265 : B1 00            "  "            mov     @r1,#000H
+0267 : B8 29            " )"            mov     r0,#029H
+0269 : B9 2A            " *"            mov     r1,#02AH
+026B : F1               " "             mov     a,@r1
+026C : A0               " "             mov     @r0,a
+026D : B1 00            "  "            mov     @r1,#000H
+026F : 44 7D            "D}"            jmp     L027D
+                                ;
+0271                            L0271:
+0271 : B8 2D            " -"            mov     r0,#02DH
+0273 : F0               " "             mov     a,@r0
+0274 : DF               " "             xrl     a,r7
+0275 : 96 82            "  "            jnz     L0282
+0277 : B0 00            "  "            mov     @r0,#000H
+0279 : B8 2A            " *"            mov     r0,#02AH
+027B : B0 00            "  "            mov     @r0,#000H
+027D                            L027D:
+027D : B8 2F            " /"            mov     r0,#02FH
+027F : F0               " "             mov     a,@r0
+0280 : 07               " "             dec     a
+0281 : A0               " "             mov     @r0,a
+0282                            L0282:
+0282 : FA               " "             mov     a,r2
+0283 : 72 89            "r "            jb3     L0289
+0285 : E7               " "             rl      a
+0286 : AA               " "             mov     r2,a
+0287 : 24 64            "$d"            jmp     L0164
+                                ;
+0289                            L0289:
+0289 : B9 23            " #"            mov     r1,#023H
+028B : F1               " "             mov     a,@r1
+028C : C6 93            "  "            jz      L0293
+028E : F1               " "             mov     a,@r1
+028F : 07               " "             dec     a
+0290 : A1               " "             mov     @r1,a
+0291 : 24 62            "$b"            jmp     L0162
+                                ;
+0293                            L0293:
+0293 : FB               " "             mov     a,r3
+0294 : C6 98            "  "            jz      L0298
+0296 : 24 55            "$U"            jmp     L0155
+0298                            L0298:
+0298 : 24 50            "$P"            jmp     L0150
+                                ;
+029A : 00               " "             nop
+029B                            L029B:
+029B : FE               " "             mov     a,r6
+029C : D3 BD            "  "            xrl     a,#0BDH
+029E : C6 82            "  "            jz      L0282
+02A0 : FE               " "             mov     a,r6
+02A1 : F2 A5            "  "            jb7     L02A5
+02A3 : 44 82            "D "            jmp     L0282
+                                ;
+02A5                            L02A5:
+02A5 : 53 70            "Sp"            anl     a,#070H
+02A7 : C6 82            "  "            jz      L0282
+02A9                            L02A9:
+02A9 : B8 22            " ""            mov     r0,#022H
+02AB : F0               " "             mov     a,@r0
+02AC : B2 B0            "  "            jb5     L02B0
+02AE : 44 82            "D "            jmp     L0282
+                                ;
+02B0                            L02B0:
+02B0 : BE B4            "  "            mov     r6,#0B4H  ; auto repeat
+02B2 : 14 6C            " l"            call    send_r6
+02B4 : 54 CA            "T "            call    respond_to_command
+02B6 : 14 C7            "  "            call    clickif_022_b3
+02B8 : 74 24            "t$"            call    select_col
+02BA : 46 C6            "F "            jnt1    L02C6
+02BC : 14 95            "  "            call    trig_reset
+02BE : BC FF            "  "            mov     r4,#0FFH
+02C0 : BD 0F            "  "            mov     r5,#00FH
+02C2 : 14 C2            "  "            call    proc_delay
+02C4 : 44 A9            "D "            jmp     L02A9
+                                ;
+02C6                            L02C6:
+02C6 : 14 95            "  "            call    trig_reset
+02C8 : 44 82            "D "            jmp     L0282
+                                ;
+02CA                            respond_to_command:
+02CA : B8 25            " %"            mov     r0,#025H
+02CC : F0               " "             mov     a,@r0
+02CD : C6 D5            "  "            jz      L02D5
+02CF : 12 FC            "  "            jb0     send_resp_to_FD
+02D1 : 32 D6            "2 "            jb1     L02D6
+02D3 : 92 E2            "  "            jb4     L02E2
+02D5                            L02D5:
+02D5 : 93               " "             retr
+                                ;
+02D6                            L02D6:
+02D6 : 53 FD            "S "            anl     a,#0FDH
+02D8 : A0               " "             mov     @r0,a
+02D9 : 14 DD            "  "            call    beepif_022_b4
+02DB : 93               " "             retr
+                                ;
+02DC : 00               " "             nop
+02DD : BE BA            "  "            mov     r6,#0BAH
+02DF : 14 6C            " l"            call    send_r6
+02E1 : 93               " "             retr
+                                ;
+02E2                            L02E2:
+02E2 : 53 EF            "S "            anl     a,#0EFH
+02E4 : A0               " "             mov     @r0,a
+02E5 : 14 C7            "  "            call    clickif_022_b3
+02E7 : 93               " "             retr
+                                ;
+02E8                            send_01_00:
+02E8 : 00               " "             nop
+02E9 : BE 01            "  "            mov     r6,#001H
+02EB : 14 6C            " l"            call    send_r6
+02ED : BC FF            "  "            mov     r4,#0FFH
+02EF : BD 01            "  "            mov     r5,#001H
+02F1 : 14 C2            "  "            call    proc_delay
+02F3 : BE 00            "  "            mov     r6,#000H
+02F5 : 14 6C            " l"            call    send_r6
+02F7 : 93               " "             retr
+                                ;
+02F8 : 00               " "             nop
+02F9 : 00               " "             nop
+02FA : 00               " "             nop
+02FB : 00               " "             nop
+02FC                            send_resp_to_FD:
+02FC : 00               " "             nop
+02FD : BE 01            "  "            mov     r6,#001H
+02FF : 14 6C            " l"            call    send_r6
+0301 : BD 01            "  "            mov     r5,#001H
+0303 : BC FF            "  "            mov     r4,#0FFH
+0305 : 14 C2            "  "            call    proc_delay
+0307 : BE 00            "  "            mov     r6,#000H
+0309 : 14 6C            " l"            call    send_r6
+030B : BD 01            "  "            mov     r5,#001H
+030D : BC FF            "  "            mov     r4,#0FFH
+030F : 14 C2            "  "            call    proc_delay
+0311 : 14 6C            " l"            call    send_r6
+0313 : BD 01            "  "            mov     r5,#001H
+0315 : BC FF            "  "            mov     r4,#0FFH
+0317 : 14 C2            "  "            call    proc_delay
+0319 : 14 6C            " l"            call    send_r6
+031B : 9A 0F            "  "            anl     p2,#00FH
+031D : 94 EB            "  "            call    reset_ruslat_state
+031F : B8 38            " 8"            mov     r0,#038H
+0321 : 34 2D            "4-"            call    setat_022
+0323 : 93               " "             retr
+                                ;
+0324                            select_col:
+0324 : FA               " "             mov     a,r2
+0325 : 12 2F            " /"            jb0     L032F
+0327 : 32 33            "23"            jb1     L0333
+0329 : 52 37            "R7"            jb2     L0337
+032B : BF B0            "  "            mov     r7,#0B0H
+032D : 64 39            "d9"            jmp     L0339
+                                ;
+032F                            L032F:
+032F : BF 80            "  "            mov     r7,#080H
+0331 : 64 39            "d9"            jmp     L0339
+                                ;
+0333                            L0333:
+0333 : BF 90            "  "            mov     r7,#090H
+0335 : 64 39            "d9"            jmp     L0339
+                                ;
+0337                            L0337:
+0337 : BF A0            "  "            mov     r7,#0A0H
+0339                            L0339:
+0339 : FB               " "             mov     a,r3
+033A : 6F               "o"             add     a,r7
+033B : AF               " "             mov     r7,a
+033C : B9 23            " #"            mov     r1,#023H
+033E : F1               " "             mov     a,@r1
+033F : 12 53            " S"            jb0     L0353
+0341 : 32 49            "2I"            jb1     L0349
+0343 : FA               " "             mov     a,r2
+0344 : 3C               "<"             movd    p4,a
+0345 : 23 00            "# "            mov     a,#000H
+0347 : 3C               "<"             movd    p4,a
+0348 : 93               " "             retr
+                                ;
+0349                            L0349:
+0349 : FF               " "             mov     a,r7
+034A : 03 08            "  "            add     a,#008H
+034C : AF               " "             mov     r7,a
+034D : FA               " "             mov     a,r2
+034E : 3D               "="             movd    p5,a
+034F : 23 00            "# "            mov     a,#000H
+0351 : 3D               "="             movd    p5,a
+0352 : 93               " "             retr
+                                ;
+0353                            L0353:
+0353 : 32 5F            "2_"            jb1     L035F
+0355 : FF               " "             mov     a,r7
+0356 : 03 40            " @"            add     a,#040H
+0358 : AF               " "             mov     r7,a
+0359 : FA               " "             mov     a,r2
+035A : 3E               ">"             movd    p6,a
+035B : 23 00            "# "            mov     a,#000H
+035D : 3E               ">"             movd    p6,a
+035E : 93               " "             retr
+                                ;
+035F                            L035F:
+035F : FF               " "             mov     a,r7
+0360 : 03 48            " H"            add     a,#048H
+0362 : AF               " "             mov     r7,a
+0363 : FA               " "             mov     a,r2
+0364 : 3F               "?"             movd    p7,a
+0365 : 23 00            "# "            mov     a,#000H
+0367 : 3F               "?"             movd    p7,a
+0368                            L0368:
+0368 : 93               " "             retr
+                                ;
+0369 : 00               " "             nop
+036A : 00               " "             nop
+036B : 00               " "             nop
+036C : 00               " "             nop
+036D : 00               " "             nop
+036E : 00               " "             nop
+036F : 00               " "             nop
+0370 : 00               " "             nop
+0371                            L0371:
+0371 : 00               " "             nop
+0372 : 00               " "             nop
+0373 : 00               " "             nop
+0374 : 00               " "             nop
+0375 : 00               " "             nop
+0376 : 00               " "             nop
+0377 : 00               " "             nop
+0378 : 00               " "             nop
+0379 : 00               " "             nop
+037A : 00               " "             nop
+037B : 00               " "             nop
+037C : 00               " "             nop
+037D : 00               " "             nop
+037E : 00               " "             nop
+037F : 00               " "             nop
+                                ;
+0380 : A2               " "             db      0A2H
+                                ;
+0381 : 81               " "             movx    a,@r1
+0382 : 80               " "             movx    a,@r0
+0383 : A3               " "             movp    a,@a
+0384 : 98 9E            "  "            anl     bus,#09EH
+                                ;
+0386 : 9B               " "             db      09BH
+                                ;
+0387 : 9A A4            "  "            anl     p2,#0A4H
+0389 : 83               " "             ret
+                                ;
+038A : 82               " "             db      082H
+                                ;
+038B : 9F               " "             anld    p7,a
+038C : 95               " "             cpl     f0
+038D : 9C               " "             anld    p4,a
+038E : 94 A0            "  "            call    L04A0
+0390 : A1               " "             mov     @r1,a
+0391 : FF               " "             mov     a,r7
+0392 : 7D               "}"             addc    a,r5
+0393 : 9D               " "             anld    p5,a
+0394 : 92 99            "  "            jb4     L0399
+0396 : 97               " "             clr     c
+0397 : 96 BC            "  "            jnz     L03BC
+0399                            L0399:
+0399 : FF               " "             mov     a,r7
+039A : 74 C4            "t "            call    L03C4
+039C : FF               " "             mov     a,r7
+039D : BD 00            "  "            mov     r5,#000H
+039F : FF               " "             mov     a,r7
+03A0 : 8F               " "             orld    p7,a
+03A1 : 8C               " "             orld    p4,a
+03A2 : 7D               "}"             addc    a,r5
+03A3 : 8E               " "             orld    p6,a
+03A4 : FF               " "             mov     a,r7
+03A5 : FF               " "             mov     a,r7
+03A6 : A9               " "             mov     r1,a
+03A7 : A8               " "             mov     r0,a
+03A8 : F5               " "             sel     mb1
+                                ;
+03A9 : 73               "s"             db      073H
+                                ;
+03AA : 72 C9            "r "            jb3     L03C9
+03AC : F1               " "             mov     a,@r1
+03AD : FA               " "             mov     a,r2
+03AE : F7               " "             rlc     a
+03AF : FD               " "             mov     a,r5
+03B0 : 8A 8B            "  "            orl     p2,#08BH
+03B2 : 7C               "|"             addc    a,r4
+03B3 : 8D               " "             orld    p5,a
+03B4 : FF               " "             mov     a,r7
+03B5 : AA               " "             mov     r2,a
+03B6 : A7               " "             cpl     c
+03B7 : FF               " "             mov     a,r7
+03B8 : EF 71            " q"            djnz    r7,L0371
+03BA : FF               " "             mov     a,r7
+03BB : F9               " "             mov     a,r1
+03BC                            L03BC:
+03BC : CA               " "             dec     r2
+03BD : F6 FB            "  "            jc      L03FB
+03BF : F2 E5            "  "            jb7     L03E5
+03C1 : EA 68            " h"            djnz    r2,L0368
+03C3 : F0               " "             mov     a,@r0
+                                ;
+03C4                            L03C4:
+03C4 : F3               " "             db      0F3H
+                                ;
+03C5 : EC ED            "  "            djnz    r4,L03ED
+03C7 : E7               " "             rl      a
+03C8 : FC               " "             mov     a,r4
+03C9                            L03C9:
+03C9 : 56 57            "VW"            jt1     L0357
+03CB : BF AE            "  "            mov     r7,#0AEH
+03CD : BE B0            "  "            mov     r6,#0B0H
+03CF : AF               " "             mov     r7,a
+                                ;
+03D0 : E0               " "             db      0E0H
+                                ;
+03D1 : 67               "g"             rrc     a
+                                ;
+03D2 : 66               "f"             db      066H
+                                ;
+03D3 : E6 E8            "  "            jnc     L03E8
+03D5 : EB E3            "  "            djnz    r3,L03E3
+                                ;
+03D7 : E2 C0            "  "            db      0E2H, 0C0H
+                                ;
+03D9 : 59               "Y"             anl     a,r1
+03DA : 58               "X"             anl     a,r0
+                                ;
+03DB : C1               " "             db      0C1H
+                                ;
+03DC : B1 C6            "  "            mov     @r1,#0C6H
+03DE : B2 C2            "  "            jb5     L03C2
+03E0 : DC               " "             xrl     a,r4
+03E1 : DB               " "             xrl     a,r3
+03E2 : 65               "e"             stop    tcnt
+                                ;
+03E3                            L03E3:
+03E3 : E1               " "             db      0E1H
+                                ;
+03E4 : D4 DD            "  "            call    L06DD
+03E6 : D9               " "             xrl     a,r1
+03E7 : DE               " "             xrl     a,r6
+03E8                            L03E8:
+03E8 : C5               " "             sel     rb0
+03E9 : FF               " "             mov     a,r7
+03EA : 5A               "Z"             anl     a,r2
+03EB : CC               " "             dec     r4
+03EC : FF               " "             mov     a,r7
+03ED                            L03ED:
+03ED : C7               " "             mov     a,psw
+                                ;
+03EE : C3               " "             db      0C3H
+                                ;
+03EF : C8               " "             dec     r0
+03F0 : D7               " "             mov     psw,a
+                                ;
+03F1 : D6               " "             db      0D6H
+                                ;
+03F2 : 64 D8            "d "            jmp     L03D8
+                                ;
+03F4 : FF               " "             mov     a,r7
+03F5 : D2 FF            "  "            jb6     L03FF
+03F7 : D3 D0            "  "            xrl     a,#0D0H
+03F9 : CB               " "             dec     r3
+03FA : FE               " "             mov     a,r6
+03FB                            L03FB:
+03FB : D1               " "             xrl     a,@r1
+03FC : FF               " "             mov     a,r7
+03FD : CD               " "             dec     r5
+03FE : FF               " "             mov     a,r7
+03FF                            L03FF:
+03FF : CE               " "             dec     r6
+0400                            ext_intr:
+0400 : D5               " "             sel     rb1
+0401 : 15               " "             dis     i
+0402 : 35               "5"             dis     tcnti
+0403 : B8 39            " 9"            mov     r0,#039H ; сохраняем аккумулятор, чтобы не испортить
+0405 : A0               " "             mov     @r0,a
+0406 : BD 01            "  "            mov     r5,#001H
+0408 : BC 08            "  "            mov     r4,#008H
+040A : 14 C2            "  "            call    proc_delay ; skipping the start bit
+040C : 86 10            "  "            jni     L0410
+040E : C4 7D            " }"            jmp     leave_interrupt ; типа слишком короткий старт бит? Дребезг?
+                                ;
+0410                            L0410:
+0410 : 34 15            "4 "            call    read_byte_to_r7
+0412 : FF               " "             mov     a,r7
+0413 : F2 41            " A"            jb7     b7_up_cmd
+0415 : FF               " "             mov     a,r7
+0416 : D3 23            " #"            xrl     a,#023H ; sound enabled там ещё байт #8XH должен идти во след
+0418 : 96 20            "  "            jnz     L0420
+041A : BA 08            "  "            mov     r2,#008H ; эти значения сохранятся в памяти 1-го банка, наверно потом 
+041C : BB 00            "  "            mov     r3,#000H ; будем с ними работать
+041E : C4 87            "  "            jmp     end_of_transmission
+                                ;
+0420                            L0420:
+0420 : FF               " "             mov     a,r7
+0421 : D3 11            "  "            xrl     a,#011H ;это может быть несколько команд в зависимости от второго байта
+0423 : 96 2B            " +"            jnz     L042B   ;выключения индикаторов
+0425 : BA 02            "  "            mov     r2,#002H
+0427 : BB 00            "  "            mov     r3,#000H
+0429 : C4 87            "  "            jmp     end_of_transmission
+                                ;
+042B                            L042B:
+042B : FF               " "             mov     a,r7
+042C : D3 13            "  "            xrl     a,#013H  ;это может быть несколько комманд в зависимости от второго байта
+042E : 96 36            " 6"            jnz     L0436    ;включения индикаторов
+0430 : BA 01            "  "            mov     r2,#001H
+0432 : BB 00            "  "            mov     r3,#000H
+0434 : C4 87            "  "            jmp     end_of_transmission
+                                ;
+0436                            L0436:
+0436 : FF               " "             mov     a,r7
+0437 : D3 1B            "  "            xrl     a,#01BH ; щелчок при нажатии на клавишу разрешён. Должен быть второй байт
+0439 : 96 E9            "  "            jnz     L04E9
+043B : BA 04            "  "            mov     r2,#004H
+043D : BB 00            "  "            mov     r3,#000H
+043F : C4 87            "  "            jmp     end_of_transmission
+                                ;
+0441                            b7_up_cmd:
+0441 : D2 AB            "  "            jb6     b7b6_up_cmd
+0443 : D3 A1            "  "            xrl     a,#0A1H ; звуковой сигнал запрещён
+0445 : 96 4D            " M"            jnz     L044D
+0447 : B8 10            "  "            mov     r0,#010H
+0449 : 14 F6            "  "            call    resetat_022 ; сбрасываем бит 4 в 22
+044B : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+044D                            L044D:
+044D : FF               " "             mov     a,r7
+044E : D3 99            "  "            xrl     a,#099H ; щелчок при нажатии на клавишу запрещён. Должен быть второй байт
+0450 : 96 58            " X"            jnz     L0458
+0452 : B8 08            "  "            mov     r0,#008H
+0454 : 14 F6            "  "            call    resetat_022
+0456 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0458                            L0458:
+0458 : FF               " "             mov     a,r7
+0459 : D3 A7            "  "            xrl     a,#0A7H ; сделать бип
+045B : 96 65            " e"            jnz     L0465
+045D : B8 25            " %"            mov     r0,#025H
+045F : F0               " "             mov     a,@r0
+0460 : 43 02            "C "            orl     a,#002H
+0462 : A0               " "             mov     @r0,a
+0463 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0465                            L0465:
+0465 : FA               " "             mov     a,r2 ; если не ноль, значит мы обрабатываем второй байт ???
+0466 : 96 8F            "  "            jnz     L048F
+0468 : FF               " "             mov     a,r7 ; ок, всё ещё первый байт
+0469 : D3 89            "  "            xrl     a,#089H ; ого, это "вывод данных запрещён"
+046B : 96 7C            " |"            jnz     L047C
+046D : BE B7            "  "            mov     r6,#0B7H ; это скорее всего код подтверждения ожидания
+046F : 14 6C            " l"            call    send_r6 ; посылаем комп на.. B7
+0471 : B8 25            " %"            mov     r0,#025H
+0473 : F0               " "             mov     a,@r0
+0474 : 43 08            "C "            orl     a,#008H ; ставим флажок
+0476 : A0               " "             mov     @r0,a
+0477 : 8A 10            "  "            orl     p2,#010H ; зажигаем сигнал "ожидание". ВОТ ты какой, Олень Северный!
+0479 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+047B : 00               " "             nop    ; так, чисто прокладочка, чтобы не прилипало
+047C                            L047C:
+047C : FF               " "             mov     a,r7
+047D : D3 8B            "  "            xrl     a,#08BH ; вывод данных разрешён
+047F : 96 8F            "  "            jnz     L048F
+0481 : B8 25            " %"            mov     r0,#025H
+0483 : F0               " "             mov     a,@r0
+0484 : 53 F7            "S "            anl     a,#0F7H
+0486 : A0               " "             mov     @r0,a
+0487 : 9A EF            "  "            anl     p2,#0EFH ; гасим "ожидание"
+0489 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+048B : 00               " "             nop     ; здесь немного отдохнём, понопаем
+048C : 00               " "             nop
+048D : 00               " "             nop
+048E : 00               " "             nop
+048F                            L048F:
+048F : FF               " "             mov     a,r7
+0490 : D3 9F            "  "            xrl     a,#09FH ; сделать "щёлк"
+0492 : 96 9C            "  "            jnz     L049C
+0494 : B8 25            " %"            mov     r0,#025H
+0496 : F0               " "             mov     a,@r0
+0497 : 43 10            "C "            orl     a,#010H ; оставляем заказ в 025, щёлкать будем в цикле опроса
+0499 : A0               " "             mov     @r0,a
+049A : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+049C                            L049C:
+049C : FF               " "             mov     a,r7
+049D : D3 AB            "  "            xrl     a,#0ABH ; команда послать 01 00 хотя по документации это должно быть #0AAH
+049F : 96 E9            "  "            jnz     L04E9
+04A1 : BC 1F            "  "            mov     r4,#01FH
+04A3 : BD 01            "  "            mov     r5,#001H
+04A5 : 14 C2            "  "            call    proc_delay
+04A7 : 54 E8            "T "            call    send_01_00
+04A9 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+04AB                            b7b6_up_cmd:
+04AB : 72 C4            "r "            jb3     L04C4
+04AD : 92 D2            "  "            jb4     L04D2
+04AF : D3 E1            "  "            xrl     a,#0E1H ; запрещение автоповтора
+04B1 : 96 B9            "  "            jnz     L04B9
+04B3                            L04B3:
+04B3 : B8 20            "  "            mov     r0,#020H
+04B5 : 14 F6            "  "            call    resetat_022 ; сбрасывает флажок разрешения автоповтора
+04B7 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+04B9                            L04B9:
+04B9 : FF               " "             mov     a,r7
+04BA : D3 E3            "  "            xrl     a,#0E3H ; разрешение автоповтора
+04BC : 96 E9            "  "            jnz     L04E9
+04BE : B8 20            "  "            mov     r0,#020H
+04C0 : 34 2D            "4-"            call    setat_022
+04C2 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+04C4                            L04C4:
+04C4 : D3 FD            "  "            xrl     a,#0FDH ; сброс и отправка 001 000 000 000
+04C6 : 96 D2            "  "            jnz     L04D2
+04C8 : BC 1F            "  "            mov     r4,#01FH
+04CA : BD 01            "  "            mov     r5,#001H
+04CC : 14 C2            "  "            call    proc_delay
+04CE : 54 FC            "T "            call    send_resp_to_FD
+04D0 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+04D2                            L04D2:
+04D2 : D3 D3            "  "            xrl     a,#0D3H ; команда отослать назад #0BAH, нафига такая? 
+04D4 : 96 E2            "  "            jnz     L04E2   ; Наверно для совместимости с какими-нибудь терминалами
+04D6 : BC 1F            "  "            mov     r4,#01FH
+04D8 : BD 01            "  "            mov     r5,#001H
+04DA : 14 C2            "  "            call    proc_delay
+04DC : BE BA            "  "            mov     r6,#0BAH
+04DE : 14 6C            " l"            call    send_r6
+04E0 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+04E2                            L04E2:
+04E2 : FF               " "             mov     a,r7
+04E3 : D3 D9            "  "            xrl     a,#0D9H ; синоним E1 запрещение автоповтора
+04E5 : 96 E9            "  "            jnz     L04E9
+04E7 : 84 B3            "  "            jmp     L04B3
+04E9                            L04E9:
+04E9 : A4 C0            "  "            jmp     L05C0
+                                ;
+04EB                            reset_ruslat_state:
+04EB : B8 21            " !"            mov     r0,#021H
+04ED : F0               " "             mov     a,@r0
+04EE : 53 DF            "S "            anl     a,#0DFH
+04F0 : A0               " "             mov     @r0,a
+04F1 : B8 25            " %"            mov     r0,#025H
+04F3 : B0 00            "  "            mov     @r0,#000H
+04F5 : 93               " "             retr
+                                ;
+04F6 : 00               " "             nop                    ; кажется это мёртвый код. А как сюда можно попасть?
+04F7 : BE 01            "  "            mov     r6,#001H
+04F9 : 14 6C            " l"            call    send_r6
+04FB : BD 01            "  "            mov     r5,#001H
+04FD : BC FF            "  "            mov     r4,#0FFH
+04FF : 14 C2            "  "            call    proc_delay
+0501 : BE 00            "  "            mov     r6,#000H
+0503 : 14 6C            " l"            call    send_r6
+0505 : BD 01            "  "            mov     r5,#001H
+0507 : BC FF            "  "            mov     r4,#0FFH
+0509 : 14 C2            "  "            call    proc_delay
+050B : 14 6C            " l"            call    send_r6
+050D : BD 01            "  "            mov     r5,#001H
+050F : BC FF            "  "            mov     r4,#0FFH
+0511 : 14 C2            "  "            call    proc_delay
+0513 : 14 6C            " l"            call    send_r6
+0515 : 9A 0F            "  "            anl     p2,#00FH
+0517 : 94 EB            "  "            call    reset_ruslat_state
+0519 : B8 38            " 8"            mov     r0,#038H
+051B : 34 2D            "4-"            call    setat_022
+051D : 93               " "             retr
+                                ;
+051E : 00               " "             nop
+051F : 00               " "             nop
+0520 : 00               " "             nop
+0521 : 00               " "             nop
+0522 : 00               " "             nop
+0523 : 00               " "             nop
+0524 : 00               " "             nop
+0525 : 00               " "             nop
+0526 : 00               " "             nop
+0527 : 00               " "             nop
+0528 : 00               " "             nop
+0529 : 00               " "             nop
+052A : 00               " "             nop
+052B : 00               " "             nop
+052C : 00               " "             nop
+052D : 00               " "             nop
+052E : 00               " "             nop
+052F : 00               " "             nop
+0530 : 00               " "             nop
+0531                            L0531:
+0531 : FF               " "             mov     a,r7 ; здесь мы будем зажигать огни
+0532 : F2 36            " 6"            jb7     L0536 ; если нет старшено бита - досвидоц
+0534 : A4 AF            "  "            jmp     leave_interrupt2
+                                ;
+0536                            L0536:
+0536 : D2 AF            "  "            jb6     leave_interrupt2
+0538 : B2 AF            "  "            jb5     leave_interrupt2
+053A : 92 6A            " j"            jb4     reset_ruslat_bit
+053C : 72 46            "rF"            jb3     L0546
+053E : 52 4E            "RN"            jb2     L054E
+0540 : 32 54            "2T"            jb1     L0554
+0542 : 12 8E            "  "            jb0     L058E
+0544 : A4 AF            "  "            jmp     leave_interrupt2
+                                ;
+0546                            L0546:
+0546 : 52 58            "RX"            jb2     L0558
+0548 : 32 5E            "2^"            jb1     L055E
+054A : 12 7E            " ~"            jb0     L057E
+054C : A4 9E            "  "            jmp     L059E
+                                ;
+054E                            L054E:
+054E : 32 62            "2b"            jb1     L0562
+0550 : 12 86            "  "            jb0     L0586
+0552 : A4 A6            "  "            jmp     L05A6
+                                ;
+0554                            L0554:
+0554 : 12 8A            "  "            jb0     L058A
+0556 : A4 AA            "  "            jmp     L05AA
+                                ;
+0558                            L0558:
+0558 : 32 66            "2f"            jb1     L0566
+055A : 12 76            " v"            jb0     L0576
+055C : A4 96            "  "            jmp     L0596
+                                ;
+055E                            L055E:
+055E : 12 7A            " z"            jb0     L057A
+0560 : A4 9A            "  "            jmp     L059A
+                                ;
+0562                            L0562:
+0562 : 12 82            "  "            jb0     L0582
+0564 : A4 A2            "  "            jmp     L05A2
+                                ;
+0566                            L0566:
+0566 : 12 72            " r"            jb0     L0572
+0568 : A4 92            "  "            jmp     L0592
+                                ;
+056A                            reset_ruslat_bit:
+056A : B8 21            " !"            mov     r0,#021H
+056C : F0               " "             mov     a,@r0
+056D : 53 DF            "S "            anl     a,#0DFH
+056F : A0               " "             mov     @r0,a
+0570 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+0572                            L0572:
+0572 : 8A F0            "  "            orl     p2,#0F0H ; зажигаем все огни
+0574 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+0576                            L0576:  ; дальше скучный блок по зажиганию огней в разных комбинациях
+0576 : 8A D0            "  "            orl     p2,#0D0H
+0578 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+057A                            L057A:
+057A : 8A B0            "  "            orl     p2,#0B0H
+057C : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+057E                            L057E:
+057E : 8A 90            "  "            orl     p2,#090H
+0580 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+0582                            L0582:
+0582 : 8A 70            " p"            orl     p2,#070H
+0584 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+0586                            L0586:
+0586 : 8A 50            " P"            orl     p2,#050H
+0588 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+058A                            L058A:
+058A : 8A 30            " 0"            orl     p2,#030H
+058C : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+058E                            L058E:
+058E : 8A 10            "  "            orl     p2,#010H
+0590 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+0592                            L0592:
+0592 : 8A E0            "  "            orl     p2,#0E0H
+0594 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+0596                            L0596:
+0596 : 8A C0            "  "            orl     p2,#0C0H
+0598 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+059A                            L059A:
+059A : 8A A0            "  "            orl     p2,#0A0H
+059C : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+059E                            L059E:
+059E : 8A 80            "  "            orl     p2,#080H
+05A0 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+05A2                            L05A2:
+05A2 : 8A 60            " `"            orl     p2,#060H
+05A4 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+05A6                            L05A6:
+05A6 : 8A 40            " @"            orl     p2,#040H
+05A8 : A4 AC            "  "            jmp     leave_int_reset_r2
+                                ;
+05AA                            L05AA:
+05AA : 8A 20            "  "            orl     p2,#020H
+05AC                            leave_int_reset_r2:
+05AC : BA 00            "  "            mov     r2,#000H
+05AE : 65               "e"             stop    tcnt
+05AF                            leave_interrupt2:
+05AF : B8 39            " 9"            mov     r0,#039H ; ещё одно место для выхода из прерывания
+05B1 : F0               " "             mov     a,@r0
+05B2 : C5               " "             sel     rb0
+05B3 : 05               " "             en      i
+05B4 : 25               "%"             en      tcnti
+05B5 : 93               " "             retr
+                                ;
+05B6 : 00               " "             nop
+05B7 : 00               " "             nop
+05B8 : 00               " "             nop
+05B9 : 00               " "             nop
+05BA : 00               " "             nop
+05BB : 00               " "             nop
+05BC : 00               " "             nop
+05BD : 00               " "             nop
+05BE : 00               " "             nop
+05BF : 00               " "             nop
+05C0                            L05C0:
+05C0 : FA               " "             mov     a,r2
+05C1 : C6 CB            "  "            jz      L05CB
+05C3 : 12 31            " 1"            jb0     L0531 ; первый байт был про включение индикаторов
+05C5 : 32 FF            "2 "            jb1     L05FF ; первый байт был про включение индикаторов
+05C7 : 52 E2            "R "            jb2     L05E2 ; первый байт был разрешение щелчков 
+05C9 : 72 CD            "r "            jb3     L05CD ; первый байт был про разрешение звука
+05CB                            L05CB:
+05CB : C4 7D            " }"            jmp     leave_interrupt
+                                ;
+05CD                            L05CD:
+05CD : FF               " "             mov     a,r7
+05CE : 72 E0            "r "            jb3     L05E0 ; нечего не делаем
+05D0 : 92 E0            "  "            jb4     L05E0
+05D2 : B2 E0            "  "            jb5     L05E0
+05D4 : D2 E0            "  "            jb6     L05E0
+05D6 : F2 DA            "  "            jb7     L05DA
+05D8 : C4 7D            " }"            jmp     leave_interrupt
+                                ;
+05DA                            L05DA:
+05DA : B8 10            "  "            mov     r0,#010H ; просто разрешаем звук
+05DC : 34 2D            "4-"            call    setat_022
+05DE : BA 00            "  "            mov     r2,#000H
+05E0                            L05E0:
+05E0 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+05E2                            L05E2:
+05E2 : FF               " "             mov     a,r7
+05E3 : 72 F5            "r "            jb3     L05F5
+05E5 : 92 F5            "  "            jb4     L05F5
+05E7 : B2 F5            "  "            jb5     L05F5
+05E9 : D2 F5            "  "            jb6     L05F5
+05EB : F2 EF            "  "            jb7     L05EF
+05ED : C4 7D            " }"            jmp     leave_interrupt
+                                ;
+05EF                            L05EF:
+05EF : B8 08            "  "            mov     r0,#008H
+05F1 : 34 2D            "4-"            call    setat_022
+05F3 : BA 00            "  "            mov     r2,#000H
+05F5                            L05F5:
+05F5 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+05F7 : 00               " "             nop
+05F8 : 00               " "             nop
+05F9 : 00               " "             nop
+05FA : 00               " "             nop
+05FB : 00               " "             nop
+05FC : 00               " "             nop
+05FD : 00               " "             nop
+05FE : 00               " "             nop
+05FF                            L05FF:
+05FF : FF               " "             mov     a,r7
+0600 : F2 04            "  "            jb7     L0604
+0602 : C4 7D            " }"            jmp     leave_interrupt
+                                ;
+0604                            L0604:
+0604 : D2 7D            " }"            jb6     leave_interrupt
+0606 : B2 7D            " }"            jb5     leave_interrupt
+0608 : 92 38            " 8"            jb4     L0638
+060A : 72 14            "r "            jb3     L0614
+060C : 52 1C            "R "            jb2     L061C
+060E : 32 22            "2""            jb1     L0622
+0610 : 12 5C            " \"            jb0     L065C
+0612 : C4 7D            " }"            jmp     leave_interrupt
+                                ;
+0614                            L0614:
+0614 : 52 26            "R&"            jb2     L0626
+0616 : 32 2C            "2,"            jb1     L062C
+0618 : 12 4C            " L"            jb0     L064C
+061A : C4 6C            " l"            jmp     L066C
+                                ;
+061C                            L061C:
+061C : 32 30            "20"            jb1     L0630
+061E : 12 54            " T"            jb0     L0654
+0620 : C4 74            " t"            jmp     L0674
+                                ;
+0622                            L0622:
+0622 : 12 58            " X"            jb0     L0658
+0624 : C4 78            " x"            jmp     L0678
+                                ;
+0626                            L0626:
+0626 : 32 34            "24"            jb1     L0634
+0628 : 12 44            " D"            jb0     L0644
+062A : C4 64            " d"            jmp     L0664
+                                ;
+062C                            L062C:
+062C : 12 48            " H"            jb0     L0648
+062E : C4 68            " h"            jmp     L0668
+                                ;
+0630                            L0630:
+0630 : 12 50            " P"            jb0     L0650
+0632 : C4 70            " p"            jmp     L0670
+                                ;
+0634                            L0634:
+0634 : 12 40            " @"            jb0     L0640
+0636 : C4 60            " `"            jmp     L0660
+                                ;
+0638                            L0638:
+0638 : B8 21            " !"            mov     r0,#021H
+063A : F0               " "             mov     a,@r0
+063B : 43 20            "C "            orl     a,#020H
+063D : A0               " "             mov     @r0,a
+063E : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0640                            L0640:  ; скучное гашение огней в разных комбинациях
+0640 : 9A 0F            "  "            anl     p2,#00FH
+0642 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0644                            L0644:
+0644 : 9A 2F            " /"            anl     p2,#02FH
+0646 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0648                            L0648:
+0648 : 9A 4F            " O"            anl     p2,#04FH
+064A : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+064C                            L064C:
+064C : 9A 6F            " o"            anl     p2,#06FH
+064E : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0650                            L0650:
+0650 : 9A 8F            "  "            anl     p2,#08FH
+0652 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0654                            L0654:
+0654 : 9A AF            "  "            anl     p2,#0AFH
+0656 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0658                            L0658:
+0658 : 9A CF            "  "            anl     p2,#0CFH
+065A : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+065C                            L065C:
+065C : 9A EF            "  "            anl     p2,#0EFH
+065E : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0660                            L0660:
+0660 : 9A 1F            "  "            anl     p2,#01FH
+0662 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0664                            L0664:
+0664 : 9A 3F            " ?"            anl     p2,#03FH
+0666 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0668                            L0668:
+0668 : 9A 5F            " _"            anl     p2,#05FH
+066A : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+066C                            L066C:
+066C : 9A 7F            "  "            anl     p2,#07FH
+066E : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0670                            L0670:
+0670 : 9A 90            "  "            anl     p2,#090H
+0672 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0674                            L0674:
+0674 : 9A BF            "  "            anl     p2,#0BFH
+0676 : C4 7A            " z"            jmp     leave_stop_counter
+                                ;
+0678                            L0678:
+0678 : 9A DF            "  "            anl     p2,#0DFH
+067A                            leave_stop_counter:
+067A : BA 00            "  "            mov     r2,#000H
+067C : 65               "e"             stop    tcnt
+067D                            leave_interrupt:
+067D : B8 39            " 9"            mov     r0,#039H ; восстанавливаем аккумулятор
+067F : F0               " "             mov     a,@r0
+0680 : C5               " "             sel     rb0
+0681 : 25               "%"             en      tcnti
+0682 : 05               " "             en      i
+0683 : 93               " "             retr
+                                ;
+0684 : 00               " "             nop
+0685 : 00               " "             nop
+0686 : 00               " "             nop
+0687                            end_of_transmission:
+0687 : 86 87            "  "            jni     end_of_transmission ; ждём высокого уровня на INT. типа окончаение передачи 
+0689 : BB 04            "  "            mov     r3,#004H
+068B : 55               "U"             strt    t
+068C : C4 7D            " }"            jmp     leave_interrupt
+                                ;
+068E : FF               " "             mov     a,r7
+068F : FF               " "             mov     a,r7
+0690 : FF               " "             mov     a,r7
+0691 : FF               " "             mov     a,r7
+0692 : FF               " "             mov     a,r7
+0693 : FF               " "             mov     a,r7
+0694 : FF               " "             mov     a,r7
+0695 : FF               " "             mov     a,r7
+0696 : FF               " "             mov     a,r7
+0697 : FF               " "             mov     a,r7
+0698 : FF               " "             mov     a,r7
+0699 : FF               " "             mov     a,r7
+069A : FF               " "             mov     a,r7
+069B : FF               " "             mov     a,r7
+069C : FF               " "             mov     a,r7
+069D : FF               " "             mov     a,r7
+069E : FF               " "             mov     a,r7
+069F : FF               " "             mov     a,r7
+06A0 : FF               " "             mov     a,r7
+06A1 : FF               " "             mov     a,r7
+06A2 : FF               " "             mov     a,r7
+06A3 : FF               " "             mov     a,r7
+06A4 : FF               " "             mov     a,r7
+06A5 : FF               " "             mov     a,r7
+06A6 : FF               " "             mov     a,r7
+06A7 : FF               " "             mov     a,r7
+06A8 : FF               " "             mov     a,r7
+06A9 : FF               " "             mov     a,r7
+06AA : FF               " "             mov     a,r7
+06AB : FF               " "             mov     a,r7
+06AC : FF               " "             mov     a,r7
+06AD : FF               " "             mov     a,r7
+06AE : FF               " "             mov     a,r7
+06AF : FF               " "             mov     a,r7
+06B0 : FF               " "             mov     a,r7
+06B1 : FF               " "             mov     a,r7
+06B2 : FF               " "             mov     a,r7
+06B3 : FF               " "             mov     a,r7
+06B4 : FF               " "             mov     a,r7
+06B5 : FF               " "             mov     a,r7
+06B6 : FF               " "             mov     a,r7
+06B7 : FF               " "             mov     a,r7
+06B8 : FF               " "             mov     a,r7
+06B9 : FF               " "             mov     a,r7
+06BA : FF               " "             mov     a,r7
+06BB : FF               " "             mov     a,r7
+06BC : FF               " "             mov     a,r7
+06BD : FF               " "             mov     a,r7
+06BE : FF               " "             mov     a,r7
+06BF : FF               " "             mov     a,r7
+06C0 : FF               " "             mov     a,r7
+06C1 : FF               " "             mov     a,r7
+06C2 : FF               " "             mov     a,r7
+06C3 : FF               " "             mov     a,r7
+06C4 : FF               " "             mov     a,r7
+06C5 : FF               " "             mov     a,r7
+06C6 : FF               " "             mov     a,r7
+06C7 : FF               " "             mov     a,r7
+06C8 : FF               " "             mov     a,r7
+06C9 : FF               " "             mov     a,r7
+06CA : FF               " "             mov     a,r7
+06CB : FF               " "             mov     a,r7
+06CC : FF               " "             mov     a,r7
+06CD : FF               " "             mov     a,r7
+06CE : FF               " "             mov     a,r7
+06CF : FF               " "             mov     a,r7
+06D0 : FF               " "             mov     a,r7
+06D1 : FF               " "             mov     a,r7
+06D2 : FF               " "             mov     a,r7
+06D3 : FF               " "             mov     a,r7
+06D4 : FF               " "             mov     a,r7
+06D5 : FF               " "             mov     a,r7
+06D6 : FF               " "             mov     a,r7
+06D7 : FF               " "             mov     a,r7
+06D8 : FF               " "             mov     a,r7
+06D9 : FF               " "             mov     a,r7
+06DA : FF               " "             mov     a,r7
+06DB : FF               " "             mov     a,r7
+06DC : FF               " "             mov     a,r7
+06DD                            L06DD:
+06DD : FF               " "             mov     a,r7
+06DE : FF               " "             mov     a,r7
+06DF : FF               " "             mov     a,r7
+06E0 : FF               " "             mov     a,r7
+06E1 : FF               " "             mov     a,r7
+06E2 : FF               " "             mov     a,r7
+06E3 : FF               " "             mov     a,r7
+06E4 : FF               " "             mov     a,r7
+06E5 : FF               " "             mov     a,r7
+06E6 : FF               " "             mov     a,r7
+06E7 : FF               " "             mov     a,r7
+06E8 : FF               " "             mov     a,r7
+06E9 : FF               " "             mov     a,r7
+06EA : FF               " "             mov     a,r7
+06EB : FF               " "             mov     a,r7
+06EC : FF               " "             mov     a,r7
+06ED : FF               " "             mov     a,r7
+06EE : FF               " "             mov     a,r7
+06EF : FF               " "             mov     a,r7
+06F0 : FF               " "             mov     a,r7
+06F1 : FF               " "             mov     a,r7
+06F2 : FF               " "             mov     a,r7
+06F3 : FF               " "             mov     a,r7
+06F4 : FF               " "             mov     a,r7
+06F5 : FF               " "             mov     a,r7
+06F6 : FF               " "             mov     a,r7
+06F7 : FF               " "             mov     a,r7
+06F8 : FF               " "             mov     a,r7
+06F9 : FF               " "             mov     a,r7
+06FA : FF               " "             mov     a,r7
+06FB : FF               " "             mov     a,r7
+06FC : FF               " "             mov     a,r7
+06FD : FF               " "             mov     a,r7
+06FE : FF               " "             mov     a,r7
+06FF : FF               " "             mov     a,r7
+0700 : FF               " "             mov     a,r7
+0701 : FF               " "             mov     a,r7
+0702 : FF               " "             mov     a,r7
+0703 : FF               " "             mov     a,r7
+0704 : FF               " "             mov     a,r7
+0705 : FF               " "             mov     a,r7
+0706 : FF               " "             mov     a,r7
+0707 : FF               " "             mov     a,r7
+0708 : FF               " "             mov     a,r7
+0709 : FF               " "             mov     a,r7
+070A : FF               " "             mov     a,r7
+070B : FF               " "             mov     a,r7
+070C : FF               " "             mov     a,r7
+070D : FF               " "             mov     a,r7
+070E : FF               " "             mov     a,r7
+070F : FF               " "             mov     a,r7
+0710 : FF               " "             mov     a,r7
+0711 : FF               " "             mov     a,r7
+0712 : FF               " "             mov     a,r7
+0713 : FF               " "             mov     a,r7
+0714 : FF               " "             mov     a,r7
+0715 : FF               " "             mov     a,r7
+0716 : FF               " "             mov     a,r7
+0717 : FF               " "             mov     a,r7
+0718 : FF               " "             mov     a,r7
+0719 : FF               " "             mov     a,r7
+071A : FF               " "             mov     a,r7
+071B : FF               " "             mov     a,r7
+071C : FF               " "             mov     a,r7
+071D : FF               " "             mov     a,r7
+071E : FF               " "             mov     a,r7
+071F : FF               " "             mov     a,r7
+0720 : FF               " "             mov     a,r7
+0721 : FF               " "             mov     a,r7
+0722 : FF               " "             mov     a,r7
+0723 : FF               " "             mov     a,r7
+0724 : FF               " "             mov     a,r7
+0725 : FF               " "             mov     a,r7
+0726 : FF               " "             mov     a,r7
+0727 : FF               " "             mov     a,r7
+0728 : FF               " "             mov     a,r7
+0729 : FF               " "             mov     a,r7
+072A : FF               " "             mov     a,r7
+072B : FF               " "             mov     a,r7
+072C : FF               " "             mov     a,r7
+072D : FF               " "             mov     a,r7
+072E : FF               " "             mov     a,r7
+072F : FF               " "             mov     a,r7
+0730 : FF               " "             mov     a,r7
+0731 : FF               " "             mov     a,r7
+0732 : FF               " "             mov     a,r7
+0733 : FF               " "             mov     a,r7
+0734 : FF               " "             mov     a,r7
+0735 : FF               " "             mov     a,r7
+0736 : FF               " "             mov     a,r7
+0737 : FF               " "             mov     a,r7
+0738 : FF               " "             mov     a,r7
+0739 : FF               " "             mov     a,r7
+073A : FF               " "             mov     a,r7
+073B : FF               " "             mov     a,r7
+073C : FF               " "             mov     a,r7
+073D : FF               " "             mov     a,r7
+073E : FF               " "             mov     a,r7
+073F : FF               " "             mov     a,r7
+0740 : FF               " "             mov     a,r7
+0741 : FF               " "             mov     a,r7
+0742 : FF               " "             mov     a,r7
+0743 : FF               " "             mov     a,r7
+0744 : FF               " "             mov     a,r7
+0745 : FF               " "             mov     a,r7
+0746 : FF               " "             mov     a,r7
+0747 : FF               " "             mov     a,r7
+0748 : FF               " "             mov     a,r7
+0749 : FF               " "             mov     a,r7
+074A : FF               " "             mov     a,r7
+074B : FF               " "             mov     a,r7
+074C : FF               " "             mov     a,r7
+074D : FF               " "             mov     a,r7
+074E : FF               " "             mov     a,r7
+074F : FF               " "             mov     a,r7
+0750 : FF               " "             mov     a,r7
+0751 : FF               " "             mov     a,r7
+0752 : FF               " "             mov     a,r7
+0753 : FF               " "             mov     a,r7
+0754 : FF               " "             mov     a,r7
+0755 : FF               " "             mov     a,r7
+0756 : FF               " "             mov     a,r7
+0757 : FF               " "             mov     a,r7
+0758 : FF               " "             mov     a,r7
+0759 : FF               " "             mov     a,r7
+075A : FF               " "             mov     a,r7
+075B : FF               " "             mov     a,r7
+075C : FF               " "             mov     a,r7
+075D : FF               " "             mov     a,r7
+075E : FF               " "             mov     a,r7
+075F : FF               " "             mov     a,r7
+0760 : FF               " "             mov     a,r7
+0761 : FF               " "             mov     a,r7
+0762 : FF               " "             mov     a,r7
+0763 : FF               " "             mov     a,r7
+0764 : FF               " "             mov     a,r7
+0765 : FF               " "             mov     a,r7
+0766 : FF               " "             mov     a,r7
+0767 : FF               " "             mov     a,r7
+0768 : FF               " "             mov     a,r7
+0769 : FF               " "             mov     a,r7
+076A : FF               " "             mov     a,r7
+076B : FF               " "             mov     a,r7
+076C : FF               " "             mov     a,r7
+076D : FF               " "             mov     a,r7
+076E : FF               " "             mov     a,r7
+076F : FF               " "             mov     a,r7
+0770 : FF               " "             mov     a,r7
+0771 : FF               " "             mov     a,r7
+0772 : FF               " "             mov     a,r7
+0773 : FF               " "             mov     a,r7
+0774 : FF               " "             mov     a,r7
+0775 : FF               " "             mov     a,r7
+0776 : FF               " "             mov     a,r7
+0777 : FF               " "             mov     a,r7
+0778 : FF               " "             mov     a,r7
+0779 : FF               " "             mov     a,r7
+077A : FF               " "             mov     a,r7
+077B : FF               " "             mov     a,r7
+077C : FF               " "             mov     a,r7
+077D : FF               " "             mov     a,r7
+077E : FF               " "             mov     a,r7
+077F : FF               " "             mov     a,r7
+0780 : FF               " "             mov     a,r7
+0781 : FF               " "             mov     a,r7
+0782 : FF               " "             mov     a,r7
+0783 : FF               " "             mov     a,r7
+0784 : FF               " "             mov     a,r7
+0785 : FF               " "             mov     a,r7
+0786 : FF               " "             mov     a,r7
+0787 : FF               " "             mov     a,r7
+0788 : FF               " "             mov     a,r7
+0789 : FF               " "             mov     a,r7
+078A : FF               " "             mov     a,r7
+078B : FF               " "             mov     a,r7
+078C : FF               " "             mov     a,r7
+078D : FF               " "             mov     a,r7
+078E : FF               " "             mov     a,r7
+078F : FF               " "             mov     a,r7
+0790 : FF               " "             mov     a,r7
+0791 : FF               " "             mov     a,r7
+0792 : FF               " "             mov     a,r7
+0793 : FF               " "             mov     a,r7
+0794 : FF               " "             mov     a,r7
+0795 : FF               " "             mov     a,r7
+0796 : FF               " "             mov     a,r7
+0797 : FF               " "             mov     a,r7
+0798 : FF               " "             mov     a,r7
+0799 : FF               " "             mov     a,r7
+079A : FF               " "             mov     a,r7
+079B : FF               " "             mov     a,r7
+079C : FF               " "             mov     a,r7
+079D : FF               " "             mov     a,r7
+079E : FF               " "             mov     a,r7
+079F : FF               " "             mov     a,r7
+07A0 : FF               " "             mov     a,r7
+07A1 : FF               " "             mov     a,r7
+07A2 : FF               " "             mov     a,r7
+07A3 : FF               " "             mov     a,r7
+07A4 : FF               " "             mov     a,r7
+07A5 : FF               " "             mov     a,r7
+07A6 : FF               " "             mov     a,r7
+07A7 : FF               " "             mov     a,r7
+07A8 : FF               " "             mov     a,r7
+07A9 : FF               " "             mov     a,r7
+07AA : FF               " "             mov     a,r7
+07AB : FF               " "             mov     a,r7
+07AC : FF               " "             mov     a,r7
+07AD : FF               " "             mov     a,r7
+07AE : FF               " "             mov     a,r7
+07AF : FF               " "             mov     a,r7
+07B0 : FF               " "             mov     a,r7
+07B1 : FF               " "             mov     a,r7
+07B2 : FF               " "             mov     a,r7
+07B3 : FF               " "             mov     a,r7
+07B4 : FF               " "             mov     a,r7
+07B5 : FF               " "             mov     a,r7
+07B6 : FF               " "             mov     a,r7
+07B7 : FF               " "             mov     a,r7
+07B8 : FF               " "             mov     a,r7
+07B9 : FF               " "             mov     a,r7
+07BA : FF               " "             mov     a,r7
+07BB : FF               " "             mov     a,r7
+07BC : FF               " "             mov     a,r7
+07BD : FF               " "             mov     a,r7
+07BE : FF               " "             mov     a,r7
+07BF : FF               " "             mov     a,r7
+07C0 : FF               " "             mov     a,r7
+07C1 : FF               " "             mov     a,r7
+07C2 : FF               " "             mov     a,r7
+07C3 : FF               " "             mov     a,r7
+07C4 : FF               " "             mov     a,r7
+07C5 : FF               " "             mov     a,r7
+07C6 : FF               " "             mov     a,r7
+07C7 : FF               " "             mov     a,r7
+07C8 : FF               " "             mov     a,r7
+07C9 : FF               " "             mov     a,r7
+07CA : FF               " "             mov     a,r7
+07CB : FF               " "             mov     a,r7
+07CC : FF               " "             mov     a,r7
+07CD : FF               " "             mov     a,r7
+07CE : FF               " "             mov     a,r7
+07CF : FF               " "             mov     a,r7
+07D0 : FF               " "             mov     a,r7
+07D1 : FF               " "             mov     a,r7
+07D2 : FF               " "             mov     a,r7
+07D3 : FF               " "             mov     a,r7
+07D4 : FF               " "             mov     a,r7
+07D5 : FF               " "             mov     a,r7
+07D6 : FF               " "             mov     a,r7
+07D7 : FF               " "             mov     a,r7
+07D8 : FF               " "             mov     a,r7
+07D9 : FF               " "             mov     a,r7
+07DA : FF               " "             mov     a,r7
+07DB : FF               " "             mov     a,r7
+07DC : FF               " "             mov     a,r7
+07DD : FF               " "             mov     a,r7
+07DE : FF               " "             mov     a,r7
+07DF : FF               " "             mov     a,r7
+07E0 : FF               " "             mov     a,r7
+07E1 : FF               " "             mov     a,r7
+07E2 : FF               " "             mov     a,r7
+07E3 : FF               " "             mov     a,r7
+07E4 : FF               " "             mov     a,r7
+07E5 : FF               " "             mov     a,r7
+07E6 : FF               " "             mov     a,r7
+07E7 : FF               " "             mov     a,r7
+07E8 : FF               " "             mov     a,r7
+07E9 : FF               " "             mov     a,r7
+07EA : FF               " "             mov     a,r7
+07EB : FF               " "             mov     a,r7
+07EC : FF               " "             mov     a,r7
+07ED : FF               " "             mov     a,r7
+07EE : FF               " "             mov     a,r7
+07EF : FF               " "             mov     a,r7
+07F0 : FF               " "             mov     a,r7
+07F1 : FF               " "             mov     a,r7
+07F2 : FF               " "             mov     a,r7
+07F3 : FF               " "             mov     a,r7
+07F4 : FF               " "             mov     a,r7
+07F5 : FF               " "             mov     a,r7
+07F6 : FF               " "             mov     a,r7
+07F7 : FF               " "             mov     a,r7
+07F8 : FF               " "             mov     a,r7
+07F9 : FF               " "             mov     a,r7
+07FA : FF               " "             mov     a,r7
+07FB : FF               " "             mov     a,r7
+07FC : FF               " "             mov     a,r7
+07FD : FF               " "             mov     a,r7
+07FE : FF               " "             mov     a,r7
+07FF : FF               " "             mov     a,r7
+
+;--------------------------------------------------------------
+Symbol table
+============
+
+Value           Type    Name
+-----           ----    ----
+0017            Code    reset_timer_and_leave
+001B            Code    L001B
+001F            Code    clear_all
+0023            Code    L0023
+0068            Code    send_030
+006C            Code    send_r6
+007A            Code    L007A
+0094            Code    L0094
+0095            Code    trig_reset
+00C2            Code    proc_delay
+00C7            Code    clickif_022_b3
+00CE            Code    L00CE
+00DC            Code    L00DC
+00DD            Code    beepif_022_b4
+00E4            Code    proc_beep
+00E8            Code    L00E8
+00F5            Code    L00F5
+00F6            Code    resetat_022
+0115            Code    read_byte_to_r7
+011A            Code    L011A
+0125            Code    L0125
+012A            Code    L012A
+012D            Code    setat_022
+0133            Code    entry
+0150            Code    L0150
+0153            Code    L0153
+0155            Code    L0155
+0162            Code    L0162
+0164            Code    L0164
+01CD            Code    L01CD
+01D5            Code    L01D5
+01DE            Code    L01DE
+01E2            Code    L01E2
+01EF            Code    L01EF
+01F6            Code    L01F6
+01F8            Code    L01F8
+01FA            Code    key_pressed
+0212            Code    L0212
+0223            Code    L0223
+0231            Code    shift_released
+0237            Code    L0237
+025B            Code    L025B
+0271            Code    L0271
+027D            Code    L027D
+0282            Code    L0282
+0289            Code    L0289
+0293            Code    L0293
+0298            Code    L0298
+029B            Code    L029B
+02A5            Code    L02A5
+02A9            Code    L02A9
+02B0            Code    L02B0
+02C6            Code    L02C6
+02CA            Code    respond_to_command
+02D5            Code    L02D5
+02D6            Code    L02D6
+02E2            Code    L02E2
+02E8            Code    send_01_00
+02FC            Code    send_resp_to_FD
+0324            Code    select_col
+032F            Code    L032F
+0333            Code    L0333
+0337            Code    L0337
+0339            Code    L0339
+0349            Code    L0349
+0353            Code    L0353
+0357            Code    L0357
+035F            Code    L035F
+0368            Code    L0368
+0371            Code    L0371
+0399            Code    L0399
+03BC            Code    L03BC
+03C2            Code    L03C2
+03C4            Code    L03C4
+03C9            Code    L03C9
+03D8            Code    L03D8
+03E3            Code    L03E3
+03E5            Code    L03E5
+03E8            Code    L03E8
+03ED            Code    L03ED
+03FB            Code    L03FB
+03FF            Code    L03FF
+0400            Code    ext_intr
+0410            Code    L0410
+0420            Code    L0420
+042B            Code    L042B
+0436            Code    L0436
+0441            Code    b7_up_cmd
+044D            Code    L044D
+0458            Code    L0458
+0465            Code    L0465
+047C            Code    L047C
+048F            Code    L048F
+049C            Code    L049C
+04A0            Code    L04A0
+04AB            Code    b7b6_up_cmd
+04B3            Code    L04B3
+04B9            Code    L04B9
+04C4            Code    L04C4
+04D2            Code    L04D2
+04E2            Code    L04E2
+04E9            Code    L04E9
+04EB            Code    reset_ruslat_state
+0531            Code    L0531
+0536            Code    L0536
+0546            Code    L0546
+054E            Code    L054E
+0554            Code    L0554
+0558            Code    L0558
+055E            Code    L055E
+0562            Code    L0562
+0566            Code    L0566
+056A            Code    reset_ruslat_bit
+0572            Code    L0572
+0576            Code    L0576
+057A            Code    L057A
+057E            Code    L057E
+0582            Code    L0582
+0586            Code    L0586
+058A            Code    L058A
+058E            Code    L058E
+0592            Code    L0592
+0596            Code    L0596
+059A            Code    L059A
+059E            Code    L059E
+05A2            Code    L05A2
+05A6            Code    L05A6
+05AA            Code    L05AA
+05AC            Code    leave_int_reset_r2
+05AF            Code    leave_interrupt2
+05C0            Code    L05C0
+05CB            Code    L05CB
+05CD            Code    L05CD
+05DA            Code    L05DA
+05E0            Code    L05E0
+05E2            Code    L05E2
+05EF            Code    L05EF
+05F5            Code    L05F5
+05FF            Code    L05FF
+0604            Code    L0604
+0614            Code    L0614
+061C            Code    L061C
+0622            Code    L0622
+0626            Code    L0626
+062C            Code    L062C
+0630            Code    L0630
+0634            Code    L0634
+0638            Code    L0638
+0640            Code    L0640
+0644            Code    L0644
+0648            Code    L0648
+064C            Code    L064C
+0650            Code    L0650
+0654            Code    L0654
+0658            Code    L0658
+065C            Code    L065C
+0660            Code    L0660
+0664            Code    L0664
+0668            Code    L0668
+066C            Code    L066C
+0670            Code    L0670
+0674            Code    L0674
+0678            Code    L0678
+067A            Code    leave_stop_counter
+067D            Code    leave_interrupt
+0687            Code    end_of_transmission
+06DD            Code    L06DD
+
+Number of symbols:                      167
+
+;--------------------------------------------------------------

@@ -22,14 +22,29 @@ Port 2
 
 021H Port1 copy
 022H  init with 038H
-     b1 автоповтор разрешён
      b4 звуковой сигнал разрешён
-     b5 auto repeat
-030H scan code?
+     b5 автоповтор разрешён
+023H выбор порта столбца
+     1 - порт 6
+     2 - порт 5
+     3 - порт 7
+     4 - порт 4
+030H last scan code
 025H b0 FD command received (reset with echo 01 00 00 00)
      b1 A7 command received (beep)
      b2 9F command received (click)
      b4 запрещение передачи данных
+
+027H счётчик задержки перед автоповтором. Иницализируется значением 11
+
+028H трёхбайтный фифо буфер скан кодов
+029H
+02AH
+
+02BH трёхбайтный фифо буфер адресов
+02CH
+02DH
+
 02FH pressed key counter?
 039H save acc during ext interrupt
 03AH сохраняем акк в прерывании таймера

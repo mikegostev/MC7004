@@ -305,10 +305,10 @@
 0150 : 86 53            " S"            jni     L0153
 0152 : 05               " "             en      i
 0153                            L0153:
-0153 : BB 08            "  "            mov     r3,#008H
-0155                            L0155:
+0153 : BB 08            "  "            mov     r3,#008H ; индекс строки
+0155                            scan_loop_begin:
 0155 : B9 23            " #"            mov     r1,#023H
-0157 : B1 03            "  "            mov     @r1,#003H
+0157 : B1 03            "  "            mov     @r1,#003H ; выбрали порт 7. Потом будем уменьшать это значение
 0159 : CB               " "             dec     r3
 015A : B8 21            " !"            mov     r0,#021H
 015C : F0               " "             mov     a,@r0
@@ -316,9 +316,9 @@
 015F : 6B               "k"             add     a,r3
 0160 : A0               " "             mov     @r0,a
 0161 : 39               "9"             outl    p1,a ; select row
-0162                            L0162:
-0162 : BA 01            "  "            mov     r2,#001H
-0164                            L0164:
+0162                            row_loop_begin:
+0162 : BA 01            "  "            mov     r2,#001H ; бит линии внутри порта 1-2-4-8
+0164                            portline_loop_begin:
 0164 : 74 24            "t$"            call    select_col
 0166 : 46 FA            "F "            jnt1    key_not_pressed
 0168 : 89 10            "  "            orl     p1,#010H ; trigger reset
@@ -341,31 +341,31 @@
 0185 : 00               " "             nop
 0186 : FF               " "             mov     a,r7
 0187 : E3               " "             movp3   a,@a
-0188 : AE               " "             mov     r6,a ;scan code?
-0189 : B8 30            " 0"            mov     r0,#030H
+0188 : AE               " "             mov     r6,a     ;транслируем адрес кнопки в сканкод
+0189 : B8 30            " 0"            mov     r0,#030H ;сохраняем последний сканкод
 018B : A0               " "             mov     @r0,a
 018C : FE               " "             mov     a,r6
-018D : C6 E2            "  "            jz      L01E2
-018F : D3 AF            "  "            xrl     a,#0AFH
-0191 : C6 CD            "  "            jz      L01CD
+018D : C6 E2            "  "            jz      L01E2    ; сканкод 0 ВР?
+018F : D3 AF            "  "            xrl     a,#0AFH  ; нажат СУ
+0191 : C6 CD            "  "            jz      ctrl_pressed
 0193 : FE               " "             mov     a,r6
-0194 : D3 AE            "  "            xrl     a,#0AEH
+0194 : D3 AE            "  "            xrl     a,#0AEH  ; нажат ВР
 0196 : C6 D5            "  "            jz      L01D5
 0198 : B9 28            " ("            mov     r1,#028H
 019A : FE               " "             mov     a,r6
 019B : D1               " "             xrl     a,@r1
-019C : C6 EF            "  "            jz      L01EF
+019C : C6 EF            "  "            jz      L01EF ; если сканкод совпадает с тем что в 028. Т.е. совпадает с последней нажатой клавишой
 019E : B9 29            " )"            mov     r1,#029H
 01A0 : FE               " "             mov     a,r6
 01A1 : D1               " "             xrl     a,@r1
-01A2 : C6 F6            "  "            jz      L01F6
+01A2 : C6 F6            "  "            jz      L01F6 ; если сканкод совпадает с тем что в 029. Т.е. одна из нажатых клавиш в фифо. Ничего не делаем в таком случае
 01A4 : B9 2A            " *"            mov     r1,#02AH
 01A6 : FE               " "             mov     a,r6
 01A7 : D1               " "             xrl     a,@r1
-01A8 : C6 F6            "  "            jz      L01F6
+01A8 : C6 F6            "  "            jz      L01F6 ; если сканкод совпадает с тем что в 02A. Т.е. одна из нажатых клавиш в фифо. Ничего не делаем в таком случае
 01AA : B8 27            " '"            mov     r0,#027H
 01AC : B0 0B            "  "            mov     @r0,#00BH
-01AE : B9 29            " )"            mov     r1,#029H
+01AE : B9 29            " )"            mov     r1,#029H  ; начиная отсюда мы сдвигаем фифо буферы сканкодов и клавиш
 01B0 : B8 2A            " *"            mov     r0,#02AH
 01B2 : F1               " "             mov     a,@r1
 01B3 : A0               " "             mov     @r0,a
@@ -385,10 +385,10 @@
 01C5 : A0               " "             mov     @r0,a
 01C6 : B8 2F            " /"            mov     r0,#02FH
 01C8 : 10               " "             inc     @r0
-01C9 : 14 68            " h"            call    send_030
-01CB : 44 82            "D "            jmp     L0282
+01C9 : 14 68            " h"            call    send_030 ; просто посылаем сканкод
+01CB : 44 82            "D "            jmp     finish_scan_loop
                                 ;
-01CD                            L01CD:
+01CD                            ctrl_pressed:
 01CD : B8 36            " 6"            mov     r0,#036H
 01CF : F0               " "             mov     a,@r0
 01D0 : 12 F6            "  "            jb0     L01F6
@@ -404,7 +404,7 @@
 01DD : A0               " "             mov     @r0,a
 01DE                            L01DE:
 01DE : 14 68            " h"            call    send_030
-01E0 : 44 82            "D "            jmp     L0282
+01E0 : 44 82            "D "            jmp     finish_scan_loop
                                 ;
 01E2                            L01E2:
 01E2 : B8 36            " 6"            mov     r0,#036H
@@ -412,18 +412,18 @@
 01E5 : 32 F6            "2 "            jb1     L01F6
 01E7 : 10               " "             inc     @r0
 01E8 : 10               " "             inc     @r0
-01E9 : BE AE            "  "            mov     r6,#0AEH
+01E9 : BE AE            "  "            mov     r6,#0AEH ; посылаем "нажат ВР" (shift)
 01EB : 14 6C            " l"            call    send_r6
-01ED : 44 82            "D "            jmp     L0282
+01ED : 44 82            "D "            jmp     finish_scan_loop
                                 ;
-01EF                            L01EF:
+01EF                            L01EF:                     ; сюда мы попадаем, если последняя кнопка всё ещё нажата
 01EF : B8 27            " '"            mov     r0,#027H
 01F1 : F0               " "             mov     a,@r0
 01F2 : 07               " "             dec     a
-01F3 : C6 F8            "  "            jz      L01F8
-01F5 : A0               " "             mov     @r0,a
+01F3 : C6 F8            "  "            jz      L01F8 ; проверяем счётчик задержки автоповтора
+01F5 : A0               " "             mov     @r0,a ; пока просто уменьшаем и ничего не делаем
 01F6                            L01F6:
-01F6 : 44 82            "D "            jmp     L0282
+01F6 : 44 82            "D "            jmp     finish_scan_loop
 01F8                            L01F8:
 01F8 : 44 9B            "D "            jmp     L029B
                                 ;
@@ -472,12 +472,12 @@
 0231                            shift_released:
 0231 : BE B3            "  "            mov     r6,#0B3H
 0233 : 14 6C            " l"            call    send_r6
-0235 : 44 82            "D "            jmp     L0282
+0235 : 44 82            "D "            jmp     finish_scan_loop
                                 ;
 0237                            L0237:
 0237 : B8 2F            " /"            mov     r0,#02FH
 0239 : F0               " "             mov     a,@r0
-023A : C6 82            "  "            jz      L0282
+023A : C6 82            "  "            jz      finish_scan_loop
 023C : B8 2B            " +"            mov     r0,#02BH
 023E : F0               " "             mov     a,@r0
 023F : DF               " "             xrl     a,r7
@@ -520,7 +520,7 @@
 0271 : B8 2D            " -"            mov     r0,#02DH
 0273 : F0               " "             mov     a,@r0
 0274 : DF               " "             xrl     a,r7
-0275 : 96 82            "  "            jnz     L0282
+0275 : 96 82            "  "            jnz     finish_scan_loop
 0277 : B0 00            "  "            mov     @r0,#000H
 0279 : B8 2A            " *"            mov     r0,#02AH
 027B : B0 00            "  "            mov     @r0,#000H
@@ -529,26 +529,26 @@
 027F : F0               " "             mov     a,@r0
 0280 : 07               " "             dec     a
 0281 : A0               " "             mov     @r0,a
-0282                            L0282:
-0282 : FA               " "             mov     a,r2
-0283 : 72 89            "r "            jb3     L0289
+0282                            finish_scan_loop:
+0282 : FA               " "             mov     a,r2 ; сдвигаем выбор линии порта
+0283 : 72 89            "r "            jb3     L0289 ; если дошли до конца меняем порт
 0285 : E7               " "             rl      a
 0286 : AA               " "             mov     r2,a
-0287 : 24 64            "$d"            jmp     L0164
+0287 : 24 64            "$d"            jmp     portline_loop_begin
                                 ;
 0289                            L0289:
 0289 : B9 23            " #"            mov     r1,#023H
 028B : F1               " "             mov     a,@r1
 028C : C6 93            "  "            jz      L0293
 028E : F1               " "             mov     a,@r1
-028F : 07               " "             dec     a
+028F : 07               " "             dec     a      ;уменьшаем выбор порта
 0290 : A1               " "             mov     @r1,a
-0291 : 24 62            "$b"            jmp     L0162
+0291 : 24 62            "$b"            jmp     row_loop_begin
                                 ;
 0293                            L0293:
-0293 : FB               " "             mov     a,r3
+0293 : FB               " "             mov     a,r3  ; прошли 
 0294 : C6 98            "  "            jz      L0298
-0296 : 24 55            "$U"            jmp     L0155
+0296 : 24 55            "$U"            jmp     scan_loop_begin
 0298                            L0298:
 0298 : 24 50            "$P"            jmp     L0150
                                 ;
@@ -556,19 +556,19 @@
 029B                            L029B:
 029B : FE               " "             mov     a,r6
 029C : D3 BD            "  "            xrl     a,#0BDH
-029E : C6 82            "  "            jz      L0282
+029E : C6 82            "  "            jz      finish_scan_loop
 02A0 : FE               " "             mov     a,r6
 02A1 : F2 A5            "  "            jb7     L02A5
-02A3 : 44 82            "D "            jmp     L0282
+02A3 : 44 82            "D "            jmp     finish_scan_loop
                                 ;
 02A5                            L02A5:
 02A5 : 53 70            "Sp"            anl     a,#070H
-02A7 : C6 82            "  "            jz      L0282
+02A7 : C6 82            "  "            jz      finish_scan_loop
 02A9                            L02A9:
 02A9 : B8 22            " ""            mov     r0,#022H
 02AB : F0               " "             mov     a,@r0
-02AC : B2 B0            "  "            jb5     L02B0
-02AE : 44 82            "D "            jmp     L0282
+02AC : B2 B0            "  "            jb5     L02B0 ; разрешён ли автоповтор
+02AE : 44 82            "D "            jmp     finish_scan_loop
                                 ;
 02B0                            L02B0:
 02B0 : BE B4            "  "            mov     r6,#0B4H  ; auto repeat
@@ -585,7 +585,7 @@
                                 ;
 02C6                            L02C6:
 02C6 : 14 95            "  "            call    trig_reset
-02C8 : 44 82            "D "            jmp     L0282
+02C8 : 44 82            "D "            jmp     finish_scan_loop
                                 ;
 02CA                            respond_to_command:
 02CA : B8 25            " %"            mov     r0,#025H
@@ -741,7 +741,7 @@
 037E : 00               " "             nop
 037F : 00               " "             nop
                                 ;
-0380 : A2               " "             db      0A2H
+0380 : A2               " "             db      0A2H ; отсюда начинается таблица сканкодов
                                 ;
 0381 : 81               " "             movx    a,@r1
 0382 : 80               " "             movx    a,@r0
@@ -875,7 +875,7 @@
 03FD : CD               " "             dec     r5
 03FE : FF               " "             mov     a,r7
 03FF                            L03FF:
-03FF : CE               " "             dec     r6
+03FF : CE               " "             dec     r6 ; конец таблицы сканкодов, в хвосте скорее всего мусор
 0400                            ext_intr:
 0400 : D5               " "             sel     rb1
 0401 : 15               " "             dis     i
@@ -976,7 +976,7 @@
 0487 : 9A EF            "  "            anl     p2,#0EFH ; гасим "ожидание"
 0489 : C4 7A            " z"            jmp     leave_stop_counter
                                 ;
-048B : 00               " "             nop     ; здесь немного отдохнём, понопаем
+048B : 00               " "             nop     
 048C : 00               " "             nop
 048D : 00               " "             nop
 048E : 00               " "             nop
@@ -1814,10 +1814,10 @@ Value           Type    Name
 0133            Code    entry
 0150            Code    L0150
 0153            Code    L0153
-0155            Code    L0155
-0162            Code    L0162
-0164            Code    L0164
-01CD            Code    L01CD
+0155            Code    scan_loop_begin
+0162            Code    row_loop_begin
+0164            Code    portline_loop_begin
+01CD            Code    ctrl_pressed
 01D5            Code    L01D5
 01DE            Code    L01DE
 01E2            Code    L01E2
@@ -1832,7 +1832,7 @@ Value           Type    Name
 025B            Code    L025B
 0271            Code    L0271
 027D            Code    L027D
-0282            Code    L0282
+0282            Code    finish_scan_loop
 0289            Code    L0289
 0293            Code    L0293
 0298            Code    L0298

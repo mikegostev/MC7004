@@ -330,10 +330,10 @@
 0174 : 46 FA            "F "            jnt1    key_not_pressed
 0176 : 89 10            "  "            orl     p1,#010H ; trigger reset
 0178 : 99 EF            "  "            anl     p1,#0EFH
-017A : B8 2F            " /"            mov     r0,#02FH
+017A : B8 2F            " /"            mov     r0,#02FH ; смотрим сколько уже клавиш нажато к этому моменту
 017C : F0               " "             mov     a,@r0
 017D : D3 03            "  "            xrl     a,#003H
-017F : C6 EF            "  "            jz      L01EF
+017F : C6 EF            "  "            jz      L01EF ; о, уже есть 3 клавиши, игнорируем и идём заниматься автоповтором ранних клавиш
 0181 : 00               " "             nop
 0182 : 00               " "             nop
 0183 : 00               " "             nop
@@ -345,12 +345,12 @@
 0189 : B8 30            " 0"            mov     r0,#030H ;сохраняем последний сканкод
 018B : A0               " "             mov     @r0,a
 018C : FE               " "             mov     a,r6
-018D : C6 E2            "  "            jz      L01E2    ; сканкод 0 ВР?
+018D : C6 E2            "  "            jz      scan_0    ; сканкод 0 ФИКС?
 018F : D3 AF            "  "            xrl     a,#0AFH  ; нажат СУ
 0191 : C6 CD            "  "            jz      ctrl_pressed
 0193 : FE               " "             mov     a,r6
 0194 : D3 AE            "  "            xrl     a,#0AEH  ; нажат ВР
-0196 : C6 D5            "  "            jz      L01D5
+0196 : C6 D5            "  "            jz      shift_pressed
 0198 : B9 28            " ("            mov     r1,#028H
 019A : FE               " "             mov     a,r6
 019B : D1               " "             xrl     a,@r1
@@ -395,7 +395,7 @@
 01D2 : 10               " "             inc     @r0
 01D3 : 24 DE            "$ "            jmp     L01DE
                                 ;
-01D5                            L01D5:
+01D5                            shift_pressed:
 01D5 : B8 36            " 6"            mov     r0,#036H
 01D7 : F0               " "             mov     a,@r0
 01D8 : 52 F6            "R "            jb2     L01F6
@@ -406,7 +406,7 @@
 01DE : 14 68            " h"            call    send_030
 01E0 : 44 82            "D "            jmp     finish_scan_loop
                                 ;
-01E2                            L01E2:
+01E2                            scan_0:
 01E2 : B8 36            " 6"            mov     r0,#036H
 01E4 : F0               " "             mov     a,@r0
 01E5 : 32 F6            "2 "            jb1     L01F6
@@ -425,7 +425,7 @@
 01F6                            L01F6:
 01F6 : 44 82            "D "            jmp     finish_scan_loop
 01F8                            L01F8:
-01F8 : 44 9B            "D "            jmp     L029B
+01F8 : 44 9B            "D "            jmp     check_n_repeat
                                 ;
 01FA                            key_not_pressed:
 01FA : 89 10            "  "            orl     p1,#010H ; reset trigger
@@ -433,63 +433,63 @@
 01FE : 54 CA            "T "            call    respond_to_command
 0200 : B8 36            " 6"            mov     r0,#036H
 0202 : F0               " "             mov     a,@r0
-0203 : C6 37            " 7"            jz      L0237
+0203 : C6 37            " 7"            jz      L0237 ; нет нажатых СУ и ВР
 0205 : 67               "g"             rrc     a
-0206 : E6 12            "  "            jnc     L0212
+0206 : E6 12            "  "            jnc     L0212 ; СУ не нажат
 0208 : FF               " "             mov     a,r7
-0209 : D3 CF            "  "            xrl     a,#0CFH
+0209 : D3 CF            "  "            xrl     a,#0CFH ; адрес СУ?
 020B : 96 12            "  "            jnz     L0212
 020D : F0               " "             mov     a,@r0
 020E : 07               " "             dec     a
-020F : A0               " "             mov     @r0,a
-0210 : 44 31            "D1"            jmp     shift_released
+020F : A0               " "             mov     @r0,a ; сбрасываем состояние СУ
+0210 : 44 31            "D1"            jmp     ctrl_shift_released
                                 ;
 0212                            L0212:
 0212 : F0               " "             mov     a,@r0
 0213 : 67               "g"             rrc     a
 0214 : 67               "g"             rrc     a
 0215 : 67               "g"             rrc     a
-0216 : E6 23            " #"            jnc     L0223
+0216 : E6 23            " #"            jnc     L0223 ; ВР не нажат
 0218 : FF               " "             mov     a,r7
-0219 : D3 CC            "  "            xrl     a,#0CCH
+0219 : D3 CC            "  "            xrl     a,#0CCH ; адрес ВР?
 021B : 96 23            " #"            jnz     L0223
 021D : F0               " "             mov     a,@r0
 021E : D3 04            "  "            xrl     a,#004H
 0220 : A0               " "             mov     @r0,a
-0221 : 44 31            "D1"            jmp     shift_released
+0221 : 44 31            "D1"            jmp     ctrl_shift_released
                                 ;
 0223                            L0223:
 0223 : F0               " "             mov     a,@r0
 0224 : 67               "g"             rrc     a
 0225 : 67               "g"             rrc     a
-0226 : E6 37            " 7"            jnc     L0237
+0226 : E6 37            " 7"            jnc     L0237 ; если ВР не нажат
 0228 : FF               " "             mov     a,r7
 0229 : D3 9E            "  "            xrl     a,#09EH
 022B : 96 37            " 7"            jnz     L0237
 022D : F0               " "             mov     a,@r0
 022E : D3 02            "  "            xrl     a,#002H
 0230 : A0               " "             mov     @r0,a
-0231                            shift_released:
-0231 : BE B3            "  "            mov     r6,#0B3H
+0231                            ctrl_shift_released:
+0231 : BE B3            "  "            mov     r6,#0B3H ; код отпускания СУ или ВР
 0233 : 14 6C            " l"            call    send_r6
 0235 : 44 82            "D "            jmp     finish_scan_loop
                                 ;
 0237                            L0237:
 0237 : B8 2F            " /"            mov     r0,#02FH
 0239 : F0               " "             mov     a,@r0
-023A : C6 82            "  "            jz      finish_scan_loop
-023C : B8 2B            " +"            mov     r0,#02BH
+023A : C6 82            "  "            jz      finish_scan_loop ; нет нажатых кнопок
+023C : B8 2B            " +"            mov     r0,#02BH ; ищем адрес в буфере адресов
 023E : F0               " "             mov     a,@r0
 023F : DF               " "             xrl     a,r7
-0240 : 96 5B            " ["            jnz     L025B
-0242 : B9 2C            " ,"            mov     r1,#02CH
-0244 : F1               " "             mov     a,@r1
+0240 : 96 5B            " ["            jnz     L025B ; первый байт буфера промах
+0242 : B9 2C            " ,"            mov     r1,#02CH ; есть такая буква! эта клавиша была раньше нажата 
+0244 : F1               " "             mov     a,@r1 ; сдвигаем буфер адресов.
 0245 : A0               " "             mov     @r0,a
 0246 : B8 2D            " -"            mov     r0,#02DH
 0248 : F0               " "             mov     a,@r0
 0249 : A1               " "             mov     @r1,a
-024A : B0 00            "  "            mov     @r0,#000H
-024C : B8 29            " )"            mov     r0,#029H
+024A : B0 00            "  "            mov     @r0,#000H ; последний байт буфера обнуляем
+024C : B8 29            " )"            mov     r0,#029H  ; сдвигаем буфер сканкодов.
 024E : B9 28            " ("            mov     r1,#028H
 0250 : F0               " "             mov     a,@r0
 0251 : A1               " "             mov     @r1,a
@@ -497,15 +497,15 @@
 0254 : F1               " "             mov     a,@r1
 0255 : A0               " "             mov     @r0,a
 0256 : B1 00            "  "            mov     @r1,#000H
-0258 : 44 7D            "D}"            jmp     L027D
+0258 : 44 7D            "D}"            jmp     key_released_cnt
                                 ;
 025A : 00               " "             nop
 025B                            L025B:
 025B : B8 2C            " ,"            mov     r0,#02CH
 025D : F0               " "             mov     a,@r0
 025E : DF               " "             xrl     a,r7
-025F : 96 71            " q"            jnz     L0271
-0261 : B9 2D            " -"            mov     r1,#02DH
+025F : 96 71            " q"            jnz     L0271 ; второй байт буфера промах
+0261 : B9 2D            " -"            mov     r1,#02DH ; сдвигаем отстаток буфера
 0263 : F1               " "             mov     a,@r1
 0264 : A0               " "             mov     @r0,a
 0265 : B1 00            "  "            mov     @r1,#000H
@@ -514,17 +514,17 @@
 026B : F1               " "             mov     a,@r1
 026C : A0               " "             mov     @r0,a
 026D : B1 00            "  "            mov     @r1,#000H
-026F : 44 7D            "D}"            jmp     L027D
+026F : 44 7D            "D}"            jmp     key_released_cnt
                                 ;
 0271                            L0271:
-0271 : B8 2D            " -"            mov     r0,#02DH
+0271 : B8 2D            " -"            mov     r0,#02DH ; пробуем последний байт буфера
 0273 : F0               " "             mov     a,@r0
-0274 : DF               " "             xrl     a,r7
-0275 : 96 82            "  "            jnz     finish_scan_loop
-0277 : B0 00            "  "            mov     @r0,#000H
+0274 : DF               " "             xrl     a,r7 
+0275 : 96 82            "  "            jnz     finish_scan_loop ; не нашли
+0277 : B0 00            "  "            mov     @r0,#000H ;обнуляем последний байт буферов
 0279 : B8 2A            " *"            mov     r0,#02AH
 027B : B0 00            "  "            mov     @r0,#000H
-027D                            L027D:
+027D                            key_released_cnt:
 027D : B8 2F            " /"            mov     r0,#02FH
 027F : F0               " "             mov     a,@r0
 0280 : 07               " "             dec     a
@@ -553,18 +553,18 @@
 0298 : 24 50            "$P"            jmp     L0150
                                 ;
 029A : 00               " "             nop
-029B                            L029B:
+029B                            check_n_repeat:
 029B : FE               " "             mov     a,r6
-029C : D3 BD            "  "            xrl     a,#0BDH
+029C : D3 BD            "  "            xrl     a,#0BDH ; а что для ВК нет автоповтора? зашибись
 029E : C6 82            "  "            jz      finish_scan_loop
 02A0 : FE               " "             mov     a,r6
-02A1 : F2 A5            "  "            jb7     L02A5
+02A1 : F2 A5            "  "            jb7     L02A5 ; о, нет автоповтора для сканов без старшено бита? Век живи, век учись
 02A3 : 44 82            "D "            jmp     finish_scan_loop
                                 ;
 02A5                            L02A5:
-02A5 : 53 70            "Sp"            anl     a,#070H
+02A5 : 53 70            "Sp"            anl     a,#070H ; так же не повторяем с 80H по 8FH
 02A7 : C6 82            "  "            jz      finish_scan_loop
-02A9                            L02A9:
+02A9                            autorepeat_loop:
 02A9 : B8 22            " ""            mov     r0,#022H
 02AB : F0               " "             mov     a,@r0
 02AC : B2 B0            "  "            jb5     L02B0 ; разрешён ли автоповтор
@@ -574,14 +574,14 @@
 02B0 : BE B4            "  "            mov     r6,#0B4H  ; auto repeat
 02B2 : 14 6C            " l"            call    send_r6
 02B4 : 54 CA            "T "            call    respond_to_command
-02B6 : 14 C7            "  "            call    clickif_022_b3
-02B8 : 74 24            "t$"            call    select_col
+02B6 : 14 C7            "  "            call    clickif_022_b3 ; при автоповторе кликаем (ну если не запрещён звук)
+02B8 : 74 24            "t$"            call    select_col ; бросаем сканировать клавиатуру, пока не отпустят эту клавишу
 02BA : 46 C6            "F "            jnt1    L02C6
 02BC : 14 95            "  "            call    trig_reset
 02BE : BC FF            "  "            mov     r4,#0FFH
 02C0 : BD 0F            "  "            mov     r5,#00FH
 02C2 : 14 C2            "  "            call    proc_delay
-02C4 : 44 A9            "D "            jmp     L02A9
+02C4 : 44 A9            "D "            jmp     autorepeat_loop
                                 ;
 02C6                            L02C6:
 02C6 : 14 95            "  "            call    trig_reset
@@ -1818,27 +1818,27 @@ Value           Type    Name
 0162            Code    row_loop_begin
 0164            Code    portline_loop_begin
 01CD            Code    ctrl_pressed
-01D5            Code    L01D5
+01D5            Code    shift_pressed
 01DE            Code    L01DE
-01E2            Code    L01E2
+01E2            Code    scan_0
 01EF            Code    L01EF
 01F6            Code    L01F6
 01F8            Code    L01F8
 01FA            Code    key_not_pressed
 0212            Code    L0212
 0223            Code    L0223
-0231            Code    shift_released
+0231            Code    ctrl_shift_released
 0237            Code    L0237
 025B            Code    L025B
 0271            Code    L0271
-027D            Code    L027D
+027D            Code    key_released_cnt
 0282            Code    finish_scan_loop
 0289            Code    L0289
 0293            Code    L0293
 0298            Code    L0298
-029B            Code    L029B
+029B            Code    check_n_repeat
 02A5            Code    L02A5
-02A9            Code    L02A9
+02A9            Code    autorepeat_loop
 02B0            Code    L02B0
 02C6            Code    L02C6
 02CA            Code    respond_to_command

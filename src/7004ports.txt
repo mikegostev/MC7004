@@ -47,5 +47,9 @@ Port 2
 
 02FH pressed key counter?
 030H last scan code
+036H флаги состояния  СУ и ВР (Ctrl and Shift)
+     b0 - СУ нажат
+     b1 - состояние ФИКС
+     b2 - ВР нажат
 039H save acc during ext interrupt
 03AH сохраняем акк в прерывании таймера

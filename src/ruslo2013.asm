@@ -1,4 +1,5 @@
 .EQU P1STAT  #021H
+.EQU KEYTBL  #030H
 
 .org 0
 
@@ -36,6 +37,58 @@ call	Clear
 mov	r2,#000H
 
 main_loop:
+
+mov	a,r2
+rl	a
+swap	a
+andl	a,#0FH ; вычисляем номер байта. Т.е. a=r2/8
+add     a,KEYTBL
+mov 	r0,a
+mov	a,@r0
+mov	r7,a ;в r7 байт состояния клавиш
+
+mov	a,r2
+andl	a,#07H
+
+jb0	oddbit ; делаем в r6 маску бита в байте по младшим разрядам счётчика
+jb1	bits6n2
+jb2	bit4
+mov	r6,#01H
+jmp 	checkKey
+
+bit4:
+mov	r6,#010H
+jmp 	checkKey
+
+oddbit:
+jb1	bits7n3
+jb2	bit5
+mov	r6,#02H
+jmp 	checkKey
+
+bits6n2:
+jb2	bit6
+mov	r6,#04H
+jmp 	checkKey
+
+bits7n3:
+jb2	bit7
+mov	r6,#08H
+jmp 	checkKey
+
+bit5:
+mov	r6,#020H
+jmp 	checkKey
+
+bit6:
+mov	r6,#040H
+jmp 	checkKey
+
+bit7:
+mov	r6,#080H
+
+checkKey:
+
 call	SelectRow
 call	SelectCol
 
@@ -54,8 +107,45 @@ jnt1    key_not_pressed
 orl     p1,#010H ; trigger reset
 anl     p1,#0EFH
 
+mov	a,r7
+andl	a,r6
+jnz	update_counter ; эта клавиша уже была нажата
+
+mov	a,r7
+orl	a,r6
+mov	@r0,a
+
+mov	r6,r2
+call	send_r6
+jmp	update_counter
+
 key_not_pressed:
 
+mov	a,r7
+andl	a,r6
+jz	update_counter ; клавиша не была нажата
+
+mov	a,r7
+xrl	a,r6 ; клавиша была нажата и теперь отпущена
+mov	@r0,a
+
+mov	a,r2
+orl	a,#080H
+mov	r6,a
+call	send_r6
+jmp	update_counter
+
+update_counter:
+
+inc	r2
+mov	a,r2
+jb7	reset_ctn
+
+end_of_loop:
+jmp	main_loop
+
+reset_cnt:
+mov	r2,0H
 jmp	main_loop
 
 ;-----------------------------------

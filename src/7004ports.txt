@@ -34,7 +34,7 @@ Port 2
 025H b0 FD command received (reset with echo 01 00 00 00)
      b1 A7 command received (beep)
      b2 9F command received (click)
-     b4 запрещение передачи данных
+     b3 запрещение передачи данных
 
 027H счётчик задержки перед автоповтором. Иницализируется значением 11
 
